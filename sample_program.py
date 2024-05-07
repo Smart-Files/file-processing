@@ -31,7 +31,58 @@ def get_zip_structure(zip_file_path):
         zip_structure = io.StringIO()
         zip_ref.printdir(file=zip_structure)
         structure_text = zip_structure.getvalue().strip()
-    return structure_text
+    label = "Structure of the zip file:\n"
+    return label + structure_text
+
+def get_image_metadata(image_file_path):
+    import PIL.Image
+    with PIL.Image.open(image_file_path) as img:
+        width, height = img.size
+        format = img.format
+        mode = img.mode
+    return f"Dimensions: {width}x{height}, Format: {format}, Mode: {mode}"
+
+def getFileContents(file):
+    if os.path.exists(file):
+        if file.endswith('.zip'):
+            return get_zip_structure(file)
+        elif file.endswith(('.jpg', '.jpeg', '.png', '.gif')):
+            return get_image_metadata(file)
+    return None
+
+
+def createPromptTemplate(input, file):
+    # Generate detailed prompt from simple user prompt
+    template_prompt = ChatPromptTemplate.from_messages([
+        ("system", "You are a helpful prompting assistant. You must write instructions for creating a python script for completing the below user prompt."),
+        ("user", """Please expand on the below User Prompt with detailed instructions for a Python script that can complete the task. 
+         You must not write any code as you are only a prompting assistant.
+
+    Performance Evaluation:
+    1. Continuously review and analyze your actions to ensure you are performing to the best of your abilities.
+    2. Constructively self-criticize your big-picture behavior constantly.
+    3. Reflect on past decisions and strategies to refine your approach.
+    4. Every command has a cost, so be smart and efficient. Aim to complete tasks in the least number of steps.
+
+    You should only respond in JSON format as described below 
+    Response Format: 
+    {
+        "thoughts": {
+            "text": "thought",
+            "reasoning": "reasoning",
+            "plan": "- short bulleted\n- list that conveys\n- overall plan",
+            "criticism": "constructive self-criticism",
+            "speak": "thoughts summary to say to user",
+        }
+    }
+
+    Ensure the response can be parsed by Python json.loads
+        
+    User Prompt: {input}
+    File: {file}
+    File Contents: {contents}""")
+    ])
+
 
 INSTRUCT_WRAP_CODE = "\nWrap your code in ```python\n{CODE}\n```"
 
@@ -40,22 +91,15 @@ input = "combine the images in this zip into a pdf file with one image as each p
 
 file = "images.zip"
 
-# Generate detailed prompt from simple user prompt
-template_prompt = ChatPromptTemplate.from_messages([
-    ("system", """You are a helpful prompting assistant.\
-    You must write instructions for creating a python script for completing the below user prompt.\
-    Your job is to expand on the instructions below to make sure there is a defined plan of execution."""),
-    ("user", "User Prompt: {input}\nFile: {file}\nFile Contents: {contents}")
-])
-
 template_code = ChatPromptTemplate.from_messages([
     ("system", "You are a helpful coding assistant. Write code based on the instructions with redundancy for errors."),
     ("user", "Instructions: {input}\nFile: {file}\nFile Contents: {contents}")
 ])
 
-file_contents = "\nContents of unzipped file:\n" + get_zip_structure(file)
 
 def gen_content(llm_prompt, llm_code):
+    file_contents = getFileContents()
+
     prompt_chain = template_prompt | llm_prompt | output_parser
     
     code_chain = template_code | llm_code | output_parser
@@ -73,8 +117,8 @@ def gen_content(llm_prompt, llm_code):
 code = gen_content(llm_llama3, llm_llama3)
 
 template_requirements = ChatPromptTemplate.from_messages(
-    [("system", "You are a helpful coding assistent. Append code to the code to use pip or pip3 install imported libraries in the code"),
-     ("user", "Code: {code}")])
+    [("system", "You are a helpful coding assistant"),
+     ("user", "Step one: Create a list of every library that is used in the below program as well as its version. Step two: Append sh commands and use pip to install all imported, or used libraries in the code. (Wrap in ```sh```)\n\n\n$ # python library imports\n$")])
 
 # give the outputted code into a template and have the template append to a requirements.txt and install requirements.txt
 def install_requirements(llm_prompt, llm_code):
