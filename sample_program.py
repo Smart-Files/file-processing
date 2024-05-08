@@ -4,6 +4,7 @@ import requests, json
 from dotenv import load_dotenv
 import re
 import zipfile
+import subprocess
 import io
 from langchain.agents import Tool, Agent, AgentExecutor, initialize_agent, load_tools, create_openapi_agent
 from langchain_openai import ChatOpenAI
@@ -32,7 +33,6 @@ def stdoutIO(stdout=None):
     sys.stdout = old
 
 API_KEY = os.getenv('OPENROUTER_API_KEY')
-
 MODEL_CODELLAMA = "phind/phind-codellama-34b"
 MODEL_LLAMA3 = "meta-llama/llama-3-70b-instruct"
 MODEL_MIXTRAL22 = "mistralai/mixtral-8x22b-instruct"
@@ -179,42 +179,54 @@ def create_code_template():
 def install_requirements(code, llm=llm_palm2):
     template_requirements = ChatPromptTemplate.from_messages(
     [("system", "You are a helpful coding assistant"),
-     ("user", "Step one: Create a list of every library that is used in the below program as well as its version. Step two: Append sh commands and use pip to install all imported, or used libraries in the code. (Wrap in ```sh```)\n\n\n$ # python library imports\n$\n\n\n{code}")])
+     ("user", "Step one: Create a list of every library that is used in the below program as well as its version. Step two: Append sh commands and use pip to install all imported, or used libraries in the code. (Wrap in ```sh```)\n\n\n$ # python library imports\n$\n\n\n{code}.")])
 
     requirements_chain = template_requirements | llm | output_parser
     
     code_output = requirements_chain.invoke({"code": code})
-
-    print("CODE OUTPUT: \n", code_output)
 
     extracted_commands = re.search(r'```sh(?s:(.*?))```', code_output)
     if extracted_commands:
         python_code = extracted_commands.group(1)
     else:
         python_code = None
+    python_code = python_code.split("\n")
+    python_code = [command for command in python_code if (('#' not in command) and ( command != ''))]
+    print("SH COMMANDS: \n", python_code)
 
-    print("EXTRACTED CODE: \n", python_code)
+    result = subprocess.run(python_code, stdout=subprocess.PIPE, shell=True, text=True, stderr=subprocess.PIPE)
+    print(result)
 
     return python_code
 
 
+def check_if_errors(output):
+    return 'error' in output.keys()
 
-def run_code_and_remove_errors(llm_prompt, llm_code):
-    # execute code here and save the stdout/stderr. if there are any errors at compilation, save them and give them to a template
-    # run the outputted code first
-    # then make new template if the code throws an error
-    # template_debug
-    # try to get the error console throw some piping stdout/stderr and give it to the template
-
-    # TODO: run code and see error
-    error = "PLACE_HOLDER"
-    # check if error
-    while(error != ""):
-        # while error exists/is not empty
-        template_error = ChatPromptTemplate.from_messages([
-            ("system", "You are a helpful coding assistant. You have been given the following code and error outputs. Output a modified version of the code that doesn't contain any errors."),
-            ("user", "Code: {code}\n Error Output: {error}")
-        ])
+def debug_errors(code, llm=llm_palm2):
+    """
+    Create a debug agent to handle errors and exceptions.
+    
+    """
+    
+    output = execute_code(code)
+    print("CODE OUTPUT: \n", output)
+    print("EXTRACTED CODE: \n", code)
+    # Iterate 5 times to try to get rid of bugs. If bugs cannot be removed after 5 iterations, time out
+    for i in range(0,5):
+            template_error = ChatPromptTemplate.from_messages([
+                ("system", "You are a helpful coding assistant. You have been given the following code and error outputs. Output a modified version of the code that doesn't contain any errors."),
+                ("user", "Code: {code}\n Error Output: {error}")
+            ])
+            debug_chain = template_error | llm | output_parser
+            code_output = debug_chain.invoke({'code': code, 'error': output.get('error')})
+            new_code = re.search(r'```python(?s:(.*?))```', code_output).group(1)
+            print("EXTRACTED CODE: \n", new_code)
+            output = execute_code(new_code)
+            print("CODE OUTPUT: \n", output)
+            if not check_if_errors(output):
+                # No errors so we return
+                return
     
 
 
@@ -287,9 +299,9 @@ if __name__ == "__main__":
     file = "images/picture.png"
 
     python_code = gen_code(input, file)
-    print(python_code)
     python_code = install_requirements(python_code)
     print(python_code)
+    print(debug_errors(python_code))
     # python_code = run_code_and_remove_errors(llm_prompt, llm_code)
     # print(python_code)
     # python_code = create_debug_agent_chain(python_code, error, tools, chat_prompt_template)
