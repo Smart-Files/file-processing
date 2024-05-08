@@ -25,11 +25,14 @@ from dotenv import load_dotenv
 
 
 load_dotenv()
-API_KEY = os.getenv('LANGSMITH_API_KEY')
+OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY')
+
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+
 
 LANGCHAIN_TRACING_V2=True
 LANGCHAIN_ENDPOINT="https://api.smith.langchain.com"
-LANGCHAIN_API_KEY=API_KEY
+LANGCHAIN_API_KEY= os.getenv('LANGSMITH_API_KEY')
 LANGCHAIN_PROJECT="smartfile"
 
 MODEL_CODELLAMA = "phind/phind-codellama-34b"
@@ -38,10 +41,10 @@ MODEL_MIXTRAL22 = "mistralai/mixtral-8x22b-instruct"
 MODEL_PALM2 = "google/palm-2-codechat-bison-32k"
 
 # Initliaze models
-llm_llama3 = ChatOpenAI(openai_api_key=API_KEY, openai_api_base="https://openrouter.ai/api/v1", model_name=MODEL_LLAMA3)
-llm_codellama = ChatOpenAI(openai_api_key=API_KEY, openai_api_base="https://openrouter.ai/api/v1", model_name=MODEL_CODELLAMA)
-llm_mixtral22 = ChatOpenAI(openai_api_key=API_KEY, openai_api_base="https://openrouter.ai/api/v1", model_name=MODEL_MIXTRAL22)
-llm_palm2 = ChatOpenAI(openai_api_key=API_KEY, openai_api_base="https://openrouter.ai/api/v1", model_name=MODEL_PALM2)
+llm_llama3 = ChatOpenAI(openai_api_key=OPENROUTER_API_KEY, openai_api_base="https://openrouter.ai/api/v1", model_name=MODEL_LLAMA3)
+llm_codellama = ChatOpenAI(openai_api_key=OPENROUTER_API_KEY, openai_api_base="https://openrouter.ai/api/v1", model_name=MODEL_CODELLAMA)
+llm_mixtral22 = ChatOpenAI(openai_api_key=OPENROUTER_API_KEY, openai_api_base="https://openrouter.ai/api/v1", model_name=MODEL_MIXTRAL22)
+llm_palm2 = ChatOpenAI(openai_api_key=OPENROUTER_API_KEY, openai_api_base="https://openrouter.ai/api/v1", model_name=MODEL_PALM2)
 
 def load_documents_db(directory: str):
     documents = []
@@ -61,7 +64,7 @@ def load_documents_db(directory: str):
 
     text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
     texts = text_splitter.split_documents(documents)
-    embeddings = OpenAIEmbeddings()
+    embeddings = OpenAIEmbeddings(api_key=OPENAI_API_KEY)
     db = FAISS.from_documents(texts, embeddings)
 
     return db
