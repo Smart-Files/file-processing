@@ -5,18 +5,18 @@ from dotenv import load_dotenv
 import re
 import zipfile
 import io
-from langchain.agents import Tool, Agent, AgentExecutor, initialize_agent, load_tools
+from langchain.agents import Tool, Agent, AgentExecutor, initialize_agent, load_tools, create_openapi_agent
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.tools import tool
 from typing import Any, List, Mapping, Optional
 from langchain.callbacks.manager import CallbackManagerForLLMRun
-from langchain.chains import create_an_agent_chain
-from langchain.agents import create_tool_calling_agent
 from langchain.llms.base import LLM
 from langchain_core.output_parsers import StrOutputParser
 import sys
 from io import StringIO
 import contextlib
+from typing import Dict, Union, Optional
 
 
 output_parser = StrOutputParser()
@@ -102,11 +102,10 @@ def get_file_contents(file):
                 return None
     return None
 
-
-
-def execute_code(code: str, verbose: bool = False):
+@tool
+def execute_code(code: str, verbose: bool = False) -> Dict[str, Union[str, Optional[str]]]:
     """
-    Executes the code and return the result or error
+    Executes the code and returns the result or error
     """
     with stdoutIO() as s:
         try:
@@ -134,15 +133,15 @@ def create_prompt_template():
 
     You should only respond in JSON format as described below 
     Response Format: 
-    {
-        "thoughts": {
+    {{
+        "thoughts": {{
             "text": "thought",
             "reasoning": "reasoning",
             "plan": "- short bulleted\n- list that conveys\n- overall plan",
             "criticism": "constructive self-criticism",
             "speak": "thoughts summary to say to user",
-        }
-    }
+        }}
+    }}
 
     Ensure the response can be parsed by Python json.loads
         
@@ -166,7 +165,7 @@ def create_code_template():
     3. Reflect on past decisions and strategies to refine your approach.
     4. Every command has a cost, so be smart and efficient. Aim to complete tasks in the least number of steps.
 
-    Wrap your code in ```python\n{CODE}\n```
+    Wrap your code in ```python\n{{CODE}}\n```
          
     Instructions: {input}
     File: {file}
@@ -177,7 +176,7 @@ def create_code_template():
 
 
 # give the outputted code into a template and have the template append to a requirements.txt and install requirements.txt
-def install_requirements(code, llm=llm_llama3):
+def install_requirements(code, llm=llm_palm2):
     template_requirements = ChatPromptTemplate.from_messages(
     [("system", "You are a helpful coding assistant"),
      ("user", "Step one: Create a list of every library that is used in the below program as well as its version. Step two: Append sh commands and use pip to install all imported, or used libraries in the code. (Wrap in ```sh```)\n\n\n$ # python library imports\n$\n\n\n{code}")])
@@ -186,9 +185,15 @@ def install_requirements(code, llm=llm_llama3):
     
     code_output = requirements_chain.invoke({"code": code})
 
-    python_code = re.search(r'```sh(?s:(.*?))```', code_output).group(1)
+    print("CODE OUTPUT: \n", code_output)
 
-    print(code_output, python_code)
+    extracted_commands = re.search(r'```sh(?s:(.*?))```', code_output)
+    if extracted_commands:
+        python_code = extracted_commands.group(1)
+    else:
+        python_code = None
+
+    print("EXTRACTED CODE: \n", python_code)
 
     return python_code
 
@@ -212,17 +217,6 @@ def run_code_and_remove_errors(llm_prompt, llm_code):
         ])
     
 
-def create_debug_agent_chain(llm_code, error, tools, chat_prompt_template, llm=llm_palm2):
-    agent_chain = AgentExecutor.from_agent_and_tools(
-        agent=initialize_agent(tools, llm, agent_type="zero_shot_react_description", verbose=True),
-        tools=tools,
-        verbose=True,
-    )
-
-    # LLM's response
-    response = agent_chain({"input": chat_prompt_template.format_prompt(tools=tools, llm_code=llm_code, error=error)})
-
-    return response
 
 def create_debug_agent():
     """
@@ -231,13 +225,7 @@ def create_debug_agent():
     """
 
     # Define the tools for the agent
-    tools = [
-        Tool(
-            name="Execute Code",
-            func=execute_code,
-            description="use this tool to run the code",
-        ),
-    ]
+    tools = [execute_code]
 
     # Define the debug prompt template for invocation
     debug_prompt_template = ChatPromptTemplate(
@@ -253,19 +241,12 @@ def create_debug_agent():
     )
 
     # Define the agent
-    agent_chain = create_an_agent_chain(
-        tools=tools,
-        llm_model=llm_palm2,
-        verbose=True,
-        prompt_template=debug_prompt_template,
-    )
+    agent = create_openapi_agent(llm_palm2, tools, debug_prompt_template)
 
-    return agent_chain
+    # Create an agent executor by passing in the agent and tools
+    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
 
-
-
-
-INSTRUCT_WRAP_CODE = "\nWrap your code in ```python\n{CODE}\n```"
+    return agent_executor
 
 
 
@@ -273,8 +254,17 @@ INSTRUCT_WRAP_CODE = "\nWrap your code in ```python\n{CODE}\n```"
 def gen_code(input, files, llm_prompt=llm_mixtral22, llm_code=llm_palm2):
     """
     High level function to generate python code from a user prompt and file.
+
+    Process
+    - Generate an expanded prompt from the user prompt
+    - Generate python code from the expanded prompt
+
+    Args:
+    - input (str): The user prompt.
+    - files (str): The path to the file.
+
     """
-    file_contents = get_file_contents()
+    file_contents = get_file_contents(files)
 
     prompt_chain = create_prompt_template() | llm_prompt | output_parser
     
@@ -289,10 +279,12 @@ def gen_code(input, files, llm_prompt=llm_mixtral22, llm_code=llm_palm2):
     return python_code
 
 
-if __name__ == "main":
-    input = "combine the images in this zip into a pdf file with one image as each page."
 
-    file = "images.zip"
+
+if __name__ == "__main__":
+    input = "change this into picture.jpg"
+
+    file = "images/picture.png"
 
     python_code = gen_code(input, file)
     print(python_code)
