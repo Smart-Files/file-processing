@@ -60,7 +60,6 @@ def get_zip_structure(zip_file_path):
     return label + structure_text
 
 
-
 def get_image_metadata(image_file_path):
     """
     Get metadata of an image file.
@@ -74,6 +73,7 @@ def get_image_metadata(image_file_path):
         format = img.format
         mode = img.mode
     return f"Dimensions: {width}x{height}, Format: {format}, Mode: {mode}"
+
 
 def get_file_contents(file):
     """
@@ -101,6 +101,7 @@ def get_file_contents(file):
             else:
                 return None
     return None
+
 
 @tool
 def execute_code(code: str, verbose: bool = False) -> Dict[str, Union[str, Optional[str]]]:
@@ -152,7 +153,6 @@ def create_prompt_template():
     return template_prompt
 
 
-
 def create_code_template():
     # Generate detailed prompt from simple user prompt
     template_code = ChatPromptTemplate.from_messages([
@@ -173,6 +173,7 @@ def create_code_template():
 
     return template_code
 
+
 def install_requirements(code, llm=llm_palm2):
     """
     Create a Chat Template pip install imports given in code.
@@ -185,6 +186,7 @@ def install_requirements(code, llm=llm_palm2):
     - input (str): The LLM-generated code.
     
     """
+    # Define the prompt for invocation
     template_requirements = ChatPromptTemplate.from_messages(
     [("system", "You are a helpful coding assistant"),
      ("user", "Step one: Create a list of every library that is used in the below program as well as its version. Step two: Append sh commands and use pip to install all imported, or used libraries in the code. (Wrap in ```sh```)\n\n\n$ # python library imports\n$\n\n\n{code}.")])
@@ -193,19 +195,24 @@ def install_requirements(code, llm=llm_palm2):
     
     code_output = requirements_chain.invoke({"code": code})
 
+    # Extract the output as sh commands
     extracted_commands = re.search(r'```sh(?s:(.*?))```', code_output)
     if extracted_commands:
         python_code = extracted_commands.group(1)
     else:
         python_code = None
     python_code = python_code.split("\n")
+
+    # Remove any invalid commands such as comments or empty strings
     python_code = [command for command in python_code if (('#' not in command) and ( command != ''))]
 
+    # Execute the sh commands
     result = subprocess.run(python_code, stdout=subprocess.PIPE, shell=True, text=True, stderr=subprocess.PIPE)
 
 
 def check_if_errors(output):
     return 'error' in output.keys()
+
 
 def debug_errors(code, llm=llm_palm2):
     """
@@ -242,40 +249,6 @@ def debug_errors(code, llm=llm_palm2):
                 # No errors so we return
                 return
     
-
-
-def create_debug_agent():
-    """
-    Create a debug agent to handle errors and exceptions.
-    
-    """
-
-    # Define the tools for the agent
-    tools = [execute_code]
-
-    # Define the debug prompt template for invocation
-    debug_prompt_template = ChatPromptTemplate(
-        input_variables=["tools", "llm_code", "error"],
-        messages=[
-            {
-                "role": "system",
-                "content": "You should use the provided tools to solve the problem.",
-            },
-            {"role": "system", "content": "Available tools: {tools}."},
-            {"role": "user", "content": "Error: {error}. Fix the issue in the following code: {llm_code}."},
-        ],
-    )
-
-    # Define the agent
-    agent = create_openapi_agent(llm_palm2, tools, debug_prompt_template)
-
-    # Create an agent executor by passing in the agent and tools
-    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
-
-    return agent_executor
-
-
-
 
 def gen_code(input, files, llm_prompt=llm_mixtral22, llm_code=llm_palm2):
     """
