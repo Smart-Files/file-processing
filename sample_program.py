@@ -173,10 +173,18 @@ def create_code_template():
 
     return template_code
 
-
-
-# give the outputted code into a template and have the template append to a requirements.txt and install requirements.txt
 def install_requirements(code, llm=llm_palm2):
+    """
+    Create a Chat Template pip install imports given in code.
+
+    Process
+    - Generate an a prompt to find imports and gather the installs required for them
+    - Generate sh code to install the imports
+
+    Args:
+    - input (str): The LLM-generated code.
+    
+    """
     template_requirements = ChatPromptTemplate.from_messages(
     [("system", "You are a helpful coding assistant"),
      ("user", "Step one: Create a list of every library that is used in the below program as well as its version. Step two: Append sh commands and use pip to install all imported, or used libraries in the code. (Wrap in ```sh```)\n\n\n$ # python library imports\n$\n\n\n{code}.")])
@@ -192,12 +200,8 @@ def install_requirements(code, llm=llm_palm2):
         python_code = None
     python_code = python_code.split("\n")
     python_code = [command for command in python_code if (('#' not in command) and ( command != ''))]
-    print("SH COMMANDS: \n", python_code)
 
     result = subprocess.run(python_code, stdout=subprocess.PIPE, shell=True, text=True, stderr=subprocess.PIPE)
-    print(result)
-
-    return python_code
 
 
 def check_if_errors(output):
@@ -205,25 +209,35 @@ def check_if_errors(output):
 
 def debug_errors(code, llm=llm_palm2):
     """
-    Create a debug agent to handle errors and exceptions.
+    Create a Chat Template to handle errors and exceptions.
     
+    Process
+    - Gather the output of running the code
+    - Generate a prompt to solve any errors from the saved output
+
+    Args:
+    - input (str): The LLM-generated code.
     """
     
     output = execute_code(code)
-    print("CODE OUTPUT: \n", output)
-    print("EXTRACTED CODE: \n", code)
     # Iterate 5 times to try to get rid of bugs. If bugs cannot be removed after 5 iterations, time out
     for i in range(0,5):
+            # Define the prompt for invocation
             template_error = ChatPromptTemplate.from_messages([
                 ("system", "You are a helpful coding assistant. You have been given the following code and error outputs. Output a modified version of the code that doesn't contain any errors."),
                 ("user", "Code: {code}\n Error Output: {error}")
             ])
+
             debug_chain = template_error | llm | output_parser
+
             code_output = debug_chain.invoke({'code': code, 'error': output.get('error')})
+
+            # Gather the new code from the template
             new_code = re.search(r'```python(?s:(.*?))```', code_output).group(1)
-            print("EXTRACTED CODE: \n", new_code)
+
+            # Execute the code and save the output
             output = execute_code(new_code)
-            print("CODE OUTPUT: \n", output)
+
             if not check_if_errors(output):
                 # No errors so we return
                 return
@@ -294,15 +308,11 @@ def gen_code(input, files, llm_prompt=llm_mixtral22, llm_code=llm_palm2):
 
 
 if __name__ == "__main__":
-    input = "change this into picture.jpg"
+    input = "make a copy of this image called platform.pdf"
 
-    file = "images/picture.png"
+    file = "images/platform.jpg"
 
     python_code = gen_code(input, file)
-    python_code = install_requirements(python_code)
+    install_requirements(python_code)
     print(python_code)
     print(debug_errors(python_code))
-    # python_code = run_code_and_remove_errors(llm_prompt, llm_code)
-    # print(python_code)
-    # python_code = create_debug_agent_chain(python_code, error, tools, chat_prompt_template)
-    # print(python_code)
