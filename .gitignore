@@ -1,1 +1,4 @@
 .env
+db/
+chroma.sqlite
+data_level0.bin
