@@ -1,0 +1,703 @@
+<main>
+  <header>
+    <h1>
+      <a translate="no" href="#">pdftocairo<span> - Man Page</span></a>
+    </h1>
+    <p>
+      Portable Document Format (PDF) to PNG/JPEG/TIFF/PDF/PS/EPS/SVG using cairo
+    </p>
+  </header>
+  <section id="Examples_(TL;DR)">
+    <a href="#Examples_(TL;DR)"><h2>Examples (TL;DR)</h2></a>
+    <ul>
+      <li>
+        <span>Convert a PDF file to JPEG:</span>
+        <code
+          >pdftocairo <var>path/to/file.pdf</var>
+          <a translate="no" href="#-jpeg">-jpeg</a></code
+        >
+      </li>
+      <li>
+        <span>Convert to PDF expanding the output to fill the paper:</span>
+        <code
+          >pdftocairo <var>path/to/file.pdf</var> <var>output.pdf</var>
+          <a translate="no" href="#-pdf">-pdf</a>
+          <a translate="no" href="#-expand">-expand</a></code
+        >
+      </li>
+      <li>
+        <span>Convert to SVG specifying the first/last page to convert:</span>
+        <code
+          >pdftocairo <var>path/to/file.pdf</var> <var>output.svg</var>
+          <a translate="no" href="#-svg">-svg</a>
+          <a translate="no" href="#-f">-f</a> <var>first_page</var>
+          <a translate="no" href="#-l">-l</a> <var>last_page</var></code
+        >
+      </li>
+      <li>
+        <span>Convert to PNG with 200ppi resolution:</span>
+        <code
+          >pdftocairo <var>path/to/file.pdf</var> <var>output.png</var>
+          <a translate="no" href="#-png">-png</a>
+          <a translate="no" href="#-r">-r</a> 200</code
+        >
+      </li>
+      <li>
+        <span>Convert to grayscale TIFF setting paper size to A3:</span>
+        <code
+          >pdftocairo <var>path/to/file.pdf</var>
+          <a translate="no" href="#-tiff">-tiff</a>
+          <a translate="no" href="#-gray">-gray</a>
+          <a translate="no" href="#-paper">-paper</a> A3</code
+        >
+      </li>
+      <li>
+        <span
+          >Convert to PNG cropping x and y pixels from the top-left
+          corner:</span
+        >
+        <code
+          >pdftocairo <var>path/to/file.pdf</var>
+          <a translate="no" href="#-png">-png</a>
+          <a translate="no" href="#-x">-x</a> <var>x_pixels</var>
+          <a translate="no" href="#-y">-y</a> <var>y_pixels</var></code
+        >
+      </li>
+    </ul>
+    <p class="tldr-link"><a href="https://tldr.sh/">tldr.sh</a></p>
+  </section>
+  <section id="Synopsis">
+    <a href="#Synopsis"><h2>Synopsis</h2></a>
+    <p>
+      <code
+        ><strong>pdftocairo</strong> [options]
+        <em>PDF-file</em> [<em>output-file</em>]</code
+      >
+    </p>
+  </section>
+  <section id="Description">
+    <a href="#Description"><h2>Description</h2></a>
+    <p>
+      <strong>pdftocairo</strong> converts Portable Document Format (PDF) files,
+      using the cairo output device of the poppler PDF library, to any of the
+      following output formats:
+    </p>
+    <ul>
+      <li class="p">Portable Network Graphics (PNG)</li>
+      <li class="p">JPEG Interchange Format (JPEG)</li>
+      <li class="p">Tagged Image File Format (TIFF)</li>
+      <li class="p">Portable Document Format (PDF)</li>
+      <li class="p">PostScript (PS)</li>
+      <li class="p">Encapsulated PostScript (EPS)</li>
+      <li class="p">Scalable Vector Graphics (SVG)</li>
+      <li class="p">Windows Printer</li>
+    </ul>
+    <p>
+      <strong>pdftocairo</strong> reads the PDF file, <em>PDF-file</em>, and
+      writes to <em>output-file</em>. The image formats (PNG, JPEG, and TIFF)
+      generate one file per page with the page number and file type appended to
+      <em>output-file</em>. When
+      <a translate="no" href="#-singlefile">-singlefile</a> is used with the
+      image formats, the file type is appended to <em>output-file</em>. When the
+      output format is a vector format (PDF, PS, EPS, and SVG),
+      <em>output-file</em> is the full filename.
+    </p>
+    <p>
+      If the <em>PDF-file</em> is “-” , the PDF is read from stdin. If the
+      <em>output-file</em> is “-” , the output file will be written to stdout.
+      Using stdout is not valid with image formats unless
+      <a translate="no" href="#-singlefile">-singlefile</a> is used. If
+      <em>output-file</em> is not used, the output filename will be derived from
+      the <em>PDF-file</em> filename.
+    </p>
+    <p>
+      Not all options are valid with all output formats. One (and only one) of
+      the output format options (<a translate="no" href="#-png">-png</a>,
+      <a translate="no" href="#-jpeg">-jpeg</a>,
+      <a translate="no" href="#-tiff">-tiff</a>,
+      <a translate="no" href="#-pdf">-pdf</a>,
+      <a translate="no" href="#-print">-print</a>,
+      <a translate="no" href="#-ps">-ps</a>,
+      <a translate="no" href="#-eps">-eps</a>, or
+      <a translate="no" href="#-svg">-svg</a>) must be used.
+    </p>
+    <p>
+      The resolution options (<a translate="no" href="#-r">-r</a>,
+      <a translate="no" href="#-rx">-rx</a>,
+      <a translate="no" href="#-ry">-ry</a>) set the resolution of the image
+      output formats. The image dimensions will depend on the PDF page size and
+      the resolution. For the vector outputs, regions of the page that can not
+      be represented natively in the output format (eg translucency in PS) will
+      be rasterized at the resolution specified by the resolution options.
+    </p>
+    <p>
+      The <a translate="no" href="#-scale-to">-scale-to</a> options may be used
+      to set a fixed image size. The image resolution will vary with the page
+      size.
+    </p>
+    <p>
+      The cropping options (<a translate="no" href="#-x">-x</a>,
+      <a translate="no" href="#-y">-y</a>, <a translate="no" href="#-W">-W</a>,
+      and <a translate="no" href="#-H">-H</a>) use units of pixels with the
+      image formats and PostScript points (1/72 inch) with the vector formats.
+      When cropping is used with vector output the cropped region is centered
+      unless <a translate="no" href="#-nocenter">-nocenter</a> is used in which
+      case the cropped region is at the top left (SVG) or bottom left (PDF, PS,
+      EPS).
+    </p>
+  </section>
+  <section id="Options">
+    <a href="#Options"><h2>Options</h2></a>
+    <dl>
+      <dt><a translate="no" id="-png" href="#-png">-png</a></dt>
+      <dd><p>Generates a PNG file(s)</p></dd>
+      <dt><a translate="no" id="-jpeg" href="#-jpeg">-jpeg</a></dt>
+      <dd>
+        <p>
+          Generates a JPEG file(s). See also
+          <a translate="no" href="#-jpegopt">-jpegopt</a>.
+        </p>
+      </dd>
+      <dt><a translate="no" id="-tiff" href="#-tiff">-tiff</a></dt>
+      <dd><p>Generates a TIFF file(s)</p></dd>
+      <dt><a translate="no" id="-pdf" href="#-pdf">-pdf</a></dt>
+      <dd><p>Generates a PDF file</p></dd>
+      <dt><a translate="no" id="-ps" href="#-ps">-ps</a></dt>
+      <dd><p>Generate a PS file</p></dd>
+      <dt><a translate="no" id="-eps" href="#-eps">-eps</a></dt>
+      <dd>
+        <p>
+          Generate an EPS file. An EPS file contains a single image, so if you
+          use this option with a multi-page PDF file, you must use
+          <a translate="no" href="#-f">-f</a> and
+          <a translate="no" href="#-l">-l</a> to specify a single page.
+          &nbsp;The page size options (<a translate="no" href="#-origpagesizes"
+            >-origpagesizes</a
+          >, <a translate="no" href="#-paper">-paper</a>,
+          <a translate="no" href="#-paperw">-paperw</a>,
+          <a translate="no" href="#-paperh">-paperh</a>) can not be used with
+          this option.
+        </p>
+      </dd>
+      <dt><a translate="no" id="-svg" href="#-svg">-svg</a></dt>
+      <dd><p>Generate a SVG (Scalable Vector Graphics) file</p></dd>
+      <dt><a translate="no" id="-print" href="#-print">-print</a></dt>
+      <dd>
+        <p>
+          (Windows only) Prints to a system printer. See also
+          <a translate="no" href="#-printer">-printer</a> and -printeropt.<br />
+          If an output file is not specified, the output will be sent to the
+          printer.<br />
+          The output file '-' can not be used with this option.
+        </p>
+      </dd>
+      <dt><a translate="no" id="-printdlg" href="#-printdlg">-printdlg</a></dt>
+      <dd>
+        <p>
+          (Windows only) Prints to a system printer. Displays the print dialog
+          to allow the print options to be modified before printing.
+        </p>
+      </dd>
+      <dt><a translate="no" id="-f" href="#-f">-f</a> <em>number</em></dt>
+      <dd><p>Specifies the first page to convert.</p></dd>
+      <dt><a translate="no" id="-l" href="#-l">-l</a> <em>number</em></dt>
+      <dd><p>Specifies the last page to convert.</p></dd>
+      <dt><a translate="no" id="-o" href="#-o">-o</a></dt>
+      <dd><p>Generates only the odd numbered pages.</p></dd>
+      <dt><a translate="no" id="-e" href="#-e">-e</a></dt>
+      <dd><p>Generates only the even numbered pages.</p></dd>
+      <dt>
+        <a translate="no" id="-singlefile" href="#-singlefile">-singlefile</a>
+      </dt>
+      <dd><p>Writes only the first page and does not add digits.</p></dd>
+      <dt><a translate="no" id="-r" href="#-r">-r</a> <em>number</em></dt>
+      <dd>
+        <p>
+          Specifies the X and Y resolution, in pixels per inch of image files
+          (or rasterized regions in vector output). The default is 150 PPI.
+        </p>
+      </dd>
+      <dt><a translate="no" id="-rx" href="#-rx">-rx</a> <em>number</em></dt>
+      <dd>
+        <p>
+          Specifies the X resolution, in pixels per inch of image files (or
+          rasterized regions in vector output). The default is 150 PPI.
+        </p>
+      </dd>
+      <dt><a translate="no" id="-ry" href="#-ry">-ry</a> <em>number</em></dt>
+      <dd>
+        <p>
+          Specifies the Y resolution, in pixels per inch of image files (or
+          rasterized regions in vector output). The default is 150 PPI.
+        </p>
+      </dd>
+      <dt>
+        <a translate="no" id="-scale-to" href="#-scale-to">-scale-to</a>
+        <em>number</em>
+      </dt>
+      <dd>
+        <p>
+          Scales the long side of each page (width for landscape pages, height
+          for portrait pages) to fit in scale-to pixels. The size of the short
+          side will be determined by the aspect ratio of the page (PNG/JPEG/TIFF
+          only).
+        </p>
+      </dd>
+      <dt>
+        <a translate="no" id="-scale-to-x" href="#-scale-to-x">-scale-to-x</a>
+        <em>number</em>
+      </dt>
+      <dd>
+        <p>
+          Scales each page horizontally to fit in scale-to-x pixels. If
+          scale-to-y is set to -1, the vertical size will determined by the
+          aspect ratio of the page (PNG/JPEG/TIFF only).
+        </p>
+      </dd>
+      <dt>
+        <a translate="no" id="-scale-to-y" href="#-scale-to-y">-scale-to-y</a>
+        <em>number</em>
+      </dt>
+      <dd>
+        <p>
+          Scales each page vertically to fit in scale-to-y pixels. If scale-to-x
+          is set to -1, the horizontal size will determined by the aspect ratio
+          of the page (PNG/JPEG/TIFF only).
+        </p>
+      </dd>
+      <dt><a translate="no" id="-x" href="#-x">-x</a> <em>number</em></dt>
+      <dd>
+        <p>
+          Specifies the x-coordinate of the crop area top left corner in pixels
+          (image output) or points (vector output)
+        </p>
+      </dd>
+      <dt><a translate="no" id="-y" href="#-y">-y</a> <em>number</em></dt>
+      <dd>
+        <p>
+          Specifies the y-coordinate of the crop area top left corner in pixels
+          (image output) or points (vector output)
+        </p>
+      </dd>
+      <dt><a translate="no" id="-W" href="#-W">-W</a> <em>number</em></dt>
+      <dd>
+        <p>
+          Specifies the width of crop area in pixels (image output) or points
+          (vector output) &nbsp;(default is 0)
+        </p>
+      </dd>
+      <dt><a translate="no" id="-H" href="#-H">-H</a> <em>number</em></dt>
+      <dd>
+        <p>
+          Specifies the height of crop area in pixels (image output) or points
+          (vector output) &nbsp;(default is 0)
+        </p>
+      </dd>
+      <dt><a translate="no" id="-sz" href="#-sz">-sz</a> <em>number</em></dt>
+      <dd>
+        <p>
+          Specifies the size of crop square in pixels (image output) or points
+          (vector output) &nbsp;(sets <a translate="no" href="#-W">-W</a> and
+          <a translate="no" href="#-H">-H</a>)
+        </p>
+      </dd>
+      <dt><a translate="no" id="-cropbox" href="#-cropbox">-cropbox</a></dt>
+      <dd>
+        <p>
+          Uses the crop box rather than media box when generating the files
+          (PNG/JPEG/TIFF only)
+        </p>
+      </dd>
+      <dt><a translate="no" id="-mono" href="#-mono">-mono</a></dt>
+      <dd><p>Generate a monochrome file (PNG and TIFF only).</p></dd>
+      <dt><a translate="no" id="-gray" href="#-gray">-gray</a></dt>
+      <dd><p>Generate a grayscale file (PNG, JPEG, and TIFF only).</p></dd>
+      <dt>
+        <a translate="no" id="-antialias" href="#-antialias">-antialias</a>
+      </dt>
+      <dd>
+        <p>
+          Set the cairo antialias option used for text and drawing in image
+          files (or rasterized regions in vector output). The options are:
+        </p>
+        <dl>
+          <dt><strong>default</strong></dt>
+          <dd>
+            <p>
+              Use the default antialiasing for the target device. This is the
+              default setting if
+              <a translate="no" href="#-antialias">-antialias</a> is not used.
+            </p>
+          </dd>
+          <dt><strong>none</strong></dt>
+          <dd><p>Antialiasing is disabled.</p></dd>
+          <dt><strong>gray</strong></dt>
+          <dd>
+            <p>Perform single-color antialiasing using shades of gray.</p>
+          </dd>
+          <dt><strong>subpixel</strong></dt>
+          <dd>
+            <p>
+              Perform antialiasing by taking advantage of the order of subpixel
+              elements on devices such as LCD.
+            </p>
+          </dd>
+          <dt><strong>fast</strong></dt>
+          <dd>
+            <p>
+              Hint that the backend should perform some antialiasing but prefer
+              speed over quality.
+            </p>
+          </dd>
+          <dt><strong>good</strong></dt>
+          <dd>
+            <p>The backend should balance quality against performance.</p>
+          </dd>
+          <dt><strong>best</strong></dt>
+          <dd>
+            <p>
+              Hint that the backend should render at the highest quality,
+              sacrificing speed if necessary.
+            </p>
+          </dd>
+        </dl>
+      </dd>
+      <dt><a translate="no" id="-transp" href="#-transp">-transp</a></dt>
+      <dd>
+        <p>
+          Use a transparent page color instead of white (PNG and TIFF only).
+        </p>
+      </dd>
+      <dt>
+        <a translate="no" id="-icc" href="#-icc">-icc</a> <em>icc-file</em>
+      </dt>
+      <dd>
+        <p>
+          Use the specified ICC file as the output profile (PNG only). The
+          profile will be embedded in the PNG file.
+        </p>
+      </dd>
+      <dt>
+        <a translate="no" id="-jpegopt" href="#-jpegopt">-jpegopt</a>
+        <em>jpeg-options</em>
+      </dt>
+      <dd>
+        <p>
+          When used with <a translate="no" href="#-jpeg">-jpeg</a>, takes a list
+          of options to control the jpeg compression. See
+          <a href="#Jpeg_Options">Jpeg Options</a> for the available options.
+        </p>
+      </dd>
+      <dt><a translate="no" id="-level2" href="#-level2">-level2</a></dt>
+      <dd><p>Generate Level 2 PostScript (PS only).</p></dd>
+      <dt><a translate="no" id="-level3" href="#-level3">-level3</a></dt>
+      <dd>
+        <p>
+          Generate Level 3 PostScript (PS only). This enables all Level 2
+          features plus shading patterns and masked images. This is the default
+          setting.
+        </p>
+      </dd>
+      <dt><a translate="no" id="-struct" href="#-struct">-struct</a></dt>
+      <dd>
+        <p>
+          If the input file contains structural information about the document's
+          content, write this information to the output file (PDF only).
+        </p>
+      </dd>
+      <dt>
+        <a translate="no" id="-origpagesizes" href="#-origpagesizes"
+          >-origpagesizes</a
+        >
+      </dt>
+      <dd>
+        <p>
+          This option is the same as "<a translate="no" href="#-paper"
+            >-paper</a
+          >
+          match".
+        </p>
+      </dd>
+      <dt>
+        <a translate="no" id="-paper" href="#-paper">-paper</a> <em>size</em>
+      </dt>
+      <dd>
+        <p>
+          Set the paper size to one of "letter", "legal", "A4", or "A3"
+          (PS,PDF,SVG only). &nbsp;This can also be set to "match", which will
+          set the paper size of each page to match the size specified in the PDF
+          file. If none the <a translate="no" href="#-paper">-paper</a>,
+          <a translate="no" href="#-paperw">-paperw</a>, or
+          <a translate="no" href="#-paperh">-paperh</a> options are specified
+          the default is to match the paper size.
+        </p>
+      </dd>
+      <dt>
+        <a translate="no" id="-paperw" href="#-paperw">-paperw</a> <em>size</em>
+      </dt>
+      <dd><p>Set the paper width, in points (PS,PDF,SVG only).</p></dd>
+      <dt>
+        <a translate="no" id="-paperh" href="#-paperh">-paperh</a> <em>size</em>
+      </dt>
+      <dd><p>Set the paper height, in points (PS,PDF,SVG only).</p></dd>
+      <dt><a translate="no" id="-nocrop" href="#-nocrop">-nocrop</a></dt>
+      <dd>
+        <p>
+          By default, printing output is cropped to the CropBox specified in the
+          PDF file. &nbsp;This option disables cropping (PS,PDF,SVG only).
+        </p>
+      </dd>
+      <dt><a translate="no" id="-expand" href="#-expand">-expand</a></dt>
+      <dd>
+        <p>
+          Expand PDF pages smaller than the paper to fill the paper (PS,PDF,SVG
+          only). &nbsp;By default, these pages are not scaled.
+        </p>
+      </dd>
+      <dt><a translate="no" id="-noshrink" href="#-noshrink">-noshrink</a></dt>
+      <dd>
+        <p>
+          Don't scale PDF pages which are larger than the paper (PS,PDF,SVG
+          only). &nbsp;By default, pages larger than the paper are shrunk to
+          fit.
+        </p>
+      </dd>
+      <dt><a translate="no" id="-nocenter" href="#-nocenter">-nocenter</a></dt>
+      <dd>
+        <p>
+          By default, PDF pages smaller than the paper (after any scaling) are
+          centered on the paper. &nbsp;This option causes them to be aligned to
+          the lower-left corner of the paper instead (PS,PDF,SVG only).
+        </p>
+      </dd>
+      <dt><a translate="no" id="-duplex" href="#-duplex">-duplex</a></dt>
+      <dd>
+        <p>
+          Adds the %%IncludeFeature: *Duplex DuplexNoTumble DSC comment to the
+          PostScript file (PS only). &nbsp;This tells the print manager to
+          enable duplexing.
+        </p>
+      </dd>
+      <dt>
+        <a translate="no" id="-printer" href="#-printer">-printer</a>
+        <em>printer-name</em>
+      </dt>
+      <dd>
+        <p>
+          (Windows only). When used with
+          <a translate="no" href="#-print">-print</a>, specifies the name of the
+          printer to be used, instead of the system default.
+        </p>
+      </dd>
+      <dt>
+        <a translate="no" id="-printopt" href="#-printopt">-printopt</a>
+        <em>printer-options</em>
+      </dt>
+      <dd>
+        <p>
+          (Windows only). When used with
+          <a translate="no" href="#-print">-print</a>, takes a list of options
+          to be used to configure the printer. See
+          <a href="#Windows_Printer_Options">Windows Printer Options</a> for the
+          available options.
+        </p>
+      </dd>
+      <dt><a translate="no" id="-setupdlg" href="#-setupdlg">-setupdlg</a></dt>
+      <dd>
+        <p>
+          (Windows only). When used with
+          <a translate="no" href="#-print">-print</a>, the printer properties
+          dialog is displayed allowing the print settings to be modified before
+          printing. The paper size selected in the print properties dialog will
+          be used except when
+          <a translate="no" href="#-origpagesizes">-origpagesizes</a> is
+          specified.
+        </p>
+      </dd>
+      <dt>
+        <a translate="no" id="-opw" href="#-opw">-opw</a> <em>password</em>
+      </dt>
+      <dd>
+        <p>
+          Specify the owner password for the PDF file. &nbsp;Providing this will
+          bypass all security restrictions.
+        </p>
+      </dd>
+      <dt>
+        <a translate="no" id="-upw" href="#-upw">-upw</a> <em>password</em>
+      </dt>
+      <dd><p>Specify the user password for the PDF file.</p></dd>
+      <dt><a translate="no" id="-q" href="#-q">-q</a></dt>
+      <dd><p>Don't print any messages or errors.</p></dd>
+      <dt><a translate="no" id="-v" href="#-v">-v</a></dt>
+      <dd><p>Print copyright and version information.</p></dd>
+      <dt><a translate="no" id="-h" href="#-h">-h</a></dt>
+      <dd>
+        <p>
+          Print usage information. (<strong>-help</strong> and
+          <strong>--help</strong> are equivalent.)
+        </p>
+      </dd>
+    </dl>
+  </section>
+  <section id="Exit_Codes">
+    <a href="#Exit_Codes"><h2>Exit Codes</h2></a>
+    <p>The poppler tools use the following exit codes:</p>
+    <dl>
+      <dt>0</dt>
+      <dd><p>No error.</p></dd>
+      <dt>1</dt>
+      <dd><p>Error opening a PDF file.</p></dd>
+      <dt>2</dt>
+      <dd><p>Error opening an output file.</p></dd>
+      <dt>3</dt>
+      <dd><p>Error related to PDF permissions.</p></dd>
+      <dt>4</dt>
+      <dd><p>Error related to ICC profile.</p></dd>
+      <dt>99</dt>
+      <dd><p>Other error.</p></dd>
+    </dl>
+  </section>
+  <section id="Jpeg_Options">
+    <a href="#Jpeg_Options"><h2>Jpeg Options</h2></a>
+    <p>
+      When JPEG output is specified, the
+      <a translate="no" href="#-jpegopt">-jpegopt</a> option can be used to
+      control the JPEG compression parameters. It takes a string of the form
+      "&lt;opt&gt;=&lt;val&gt;[,&lt;opt&gt;=&lt;val&gt;]". Currently the
+      available options are:
+    </p>
+    <dl>
+      <dt>
+        <a id="Jpeg_Options-quality" href="#Jpeg_Options-quality" translate="no"
+          ><strong>quality</strong></a
+        >
+      </dt>
+      <dd>
+        <p>
+          Selects the JPEG quality value. The value must be an integer between 0
+          and 100.
+        </p>
+      </dd>
+      <dt>
+        <a
+          id="Jpeg_Options-progressive"
+          href="#Jpeg_Options-progressive"
+          translate="no"
+          ><strong>progressive</strong></a
+        >
+      </dt>
+      <dd>
+        <p>
+          Select progressive JPEG output. The possible values are "y", "n",
+          indicating progressive (yes) or non-progressive (no), respectively.
+        </p>
+      </dd>
+      <dt>
+        <a
+          id="Jpeg_Options-optimize"
+          href="#Jpeg_Options-optimize"
+          translate="no"
+          ><strong>optimize</strong></a
+        >
+      </dt>
+      <dd>
+        <p>
+          Sets whether to compute optimal Huffman coding tables for the JPEG
+          output, which will create smaller files but make an extra pass over
+          the data. The value must be "y" or "n", with "y" performing
+          optimization, otherwise the default Huffman tables are used.
+        </p>
+      </dd>
+    </dl>
+  </section>
+  <section id="Windows_Printer_Options">
+    <a href="#Windows_Printer_Options"><h2>Windows Printer Options</h2></a>
+    <p>
+      In Windows, you can use the
+      <a translate="no" href="#-print">-print</a> option to print directly to a
+      system printer. Additionally, you can use the
+      <a translate="no" href="#-printopt">-printopt</a> &nbsp;option to
+      configure the printer. It takes a string of the form
+      "&lt;opt&gt;=&lt;val&gt;[,&lt;opt&gt;=&lt;val&gt;]". Currently the
+      available options are:
+    </p>
+    <dl>
+      <dt>
+        <a
+          id="Windows_Printer_Options-source"
+          href="#Windows_Printer_Options-source"
+          translate="no"
+          ><strong>source</strong></a
+        >
+      </dt>
+      <dd>
+        <p>
+          Selects the source paper tray to be used (bin). The possible values
+          are "upper", "onlyone", "lower", "middle", "manual", "envelope",
+          "envmanual", "auto", "tractor", "smallfmt", "largefmt",
+          "largecapacity", "formsource", or a numeric value to choose a driver
+          specific source.
+        </p>
+      </dd>
+      <dt>
+        <a
+          id="Windows_Printer_Options-duplex"
+          href="#Windows_Printer_Options-duplex"
+          translate="no"
+          ><strong>duplex</strong></a
+        >
+      </dt>
+      <dd>
+        <p>
+          Sets the duplex mode of the printer. The possible values are "off",
+          "short" or "long", indicating no duplexing, short-edge binding, or
+          long-edge binding, respectively. General option
+          <a translate="no" href="#-duplex">-duplex</a> is a synonym of
+          "duplex=long". If both options are specified,
+          <a translate="no" href="#-printopt">-printopt</a> has priority.
+        </p>
+      </dd>
+    </dl>
+  </section>
+  <section id="Author">
+    <a href="#Author"><h2>Author</h2></a>
+    <p>
+      The pdftocairo software and documentation are copyright 1996-2004 Glyph
+      &amp; Cog, LLC and copyright 2005-2011 The Poppler Developers.
+    </p>
+  </section>
+  <section id="See_Also">
+    <a href="#See_Also"><h2>See Also</h2></a>
+    <p>
+      <a href="/1/pdfdetach">pdfdetach(1)</a>,
+      <a href="/1/pdffonts">pdffonts(1)</a>,
+      <a href="/1/pdfimages">pdfimages(1)</a>,
+      <a href="/1/pdfinfo">pdfinfo(1)</a>,
+      <a href="/1/pdftohtml">pdftohtml(1)</a>,
+      <a href="/1/pdftoppm">pdftoppm(1)</a>,
+      <a href="/1/pdftops">pdftops(1)</a>,
+      <a href="/1/pdftotext">pdftotext(1)</a>
+      <a href="/1/pdfseparate">pdfseparate(1)</a>,
+      <a href="/1/pdfsig">pdfsig(1)</a>, <a href="/1/pdfunite">pdfunite(1)</a>
+    </p>
+  </section>
+  <section id="Referenced_By">
+    <a href="#Referenced_By"><h2>Referenced By</h2></a>
+    <p>
+      <a href="/1/ltximg">ltximg(1)</a>,
+      <a href="/1/pdfattach">pdfattach(1)</a>,
+      <a href="/1/pdfdetach">pdfdetach(1)</a>,
+      <a href="/1/pdffonts">pdffonts(1)</a>,
+      <a href="/1/pdfimages">pdfimages(1)</a>,
+      <a href="/1/pdfinfo">pdfinfo(1)</a>,
+      <a href="/1/pdfseparate">pdfseparate(1)</a>,
+      <a href="/1/pdfsig">pdfsig(1)</a>,
+      <a href="/1/pdftohtml">pdftohtml(1)</a>,
+      <a href="/1/pdftoppm">pdftoppm(1)</a>,
+      <a href="/1/pdftops">pdftops(1)</a>,
+      <a href="/1/pdftotext">pdftotext(1)</a>,
+      <a href="/1/pdfunite">pdfunite(1)</a>.
+    </p>
+  </section>
+</main>

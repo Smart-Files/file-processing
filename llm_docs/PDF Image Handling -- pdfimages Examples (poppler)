@@ -1,0 +1,360 @@
+<main>
+  <header>
+    <h1>
+      <a translate="no" href="#">pdfimages<span> - Man Page</span></a>
+    </h1>
+    <p>Portable Document Format (PDF) image extractor (version 3.03)</p>
+  </header>
+  <section id="Examples_(TL;DR)">
+    <a href="#Examples_(TL;DR)"><h2>Examples (TL;DR)</h2></a>
+    <ul>
+      <li>
+        <span>Extract all images from a PDF file and save them as PNGs:</span>
+        <code
+          >pdfimages <a translate="no" href="#-png">-png</a>
+          <var>path/to/file.pdf</var> <var>filename_prefix</var></code
+        >
+      </li>
+      <li>
+        <span>Extract images from pages 3 to 5:</span>
+        <code
+          >pdfimages <a translate="no" href="#-f">-f</a> <var>3</var>
+          <a translate="no" href="#-l">-l</a> <var>5</var>
+          <var>path/to/file.pdf</var> <var>filename_prefix</var></code
+        >
+      </li>
+      <li>
+        <span
+          >Extract images from a PDF file and include the page number in the
+          output filenames:</span
+        >
+        <code
+          >pdfimages <a translate="no" href="#-p">-p</a>
+          <var>path/to/file.pdf</var> <var>filename_prefix</var></code
+        >
+      </li>
+      <li>
+        <span>List information about all the images in a PDF file:</span>
+        <code
+          >pdfimages <a translate="no" href="#-list">-list</a>
+          <var>path/to/file.pdf</var></code
+        >
+      </li>
+    </ul>
+    <p class="tldr-link"><a href="https://tldr.sh/">tldr.sh</a></p>
+  </section>
+  <section id="Synopsis">
+    <a href="#Synopsis"><h2>Synopsis</h2></a>
+    <p>
+      <code
+        ><strong>pdfimages</strong> [options] <em>PDF-file image-root</em></code
+      >
+    </p>
+  </section>
+  <section id="Description">
+    <a href="#Description"><h2>Description</h2></a>
+    <p>
+      <strong>Pdfimages</strong> saves images from a Portable Document Format
+      (PDF) file as Portable Pixmap (PPM), Portable Bitmap (PBM), Portable
+      Network Graphics (PNG), Tagged Image File Format (TIFF), JPEG, JPEG2000,
+      or JBIG2 files.
+    </p>
+    <p>
+      Pdfimages reads the PDF file <em>PDF-file</em>, scans one or more pages,
+      and writes one file for each image,
+      <em>image-root</em>-<em>nnn</em>.<em>xxx</em>, where <em>nnn</em> is the
+      image number and <em>xxx</em> is the image type (.ppm, .pbm, .png, .tif,
+      .jpg, jp2, jb2e, or jb2g). &nbsp;If <em>PDF-file</em> is ´-', it reads the
+      PDF file from stdin.
+    </p>
+    <p>
+      The default output format is PBM (for monochrome images) or PPM for
+      non-monochrome. The <a translate="no" href="#-png">-png</a> or
+      <a translate="no" href="#-tiff">-tiff</a> options change to default output
+      to PNG or TIFF respectively. If both
+      <a translate="no" href="#-png">-png</a> and
+      <a translate="no" href="#-tiff">-tiff</a> are specified, CMYK images will
+      be written as TIFF and all other images will be written as PNG. In
+      addition the <a translate="no" href="#-j">-j</a>,
+      <a translate="no" href="#-jp2">-jp2</a>, and
+      <a translate="no" href="#-jbig2">-jbig2</a> options will cause JPEG,
+      JPEG2000, and JBIG2, respectively, images in the PDF file to be written in
+      their native format.
+    </p>
+  </section>
+  <section id="Options">
+    <a href="#Options"><h2>Options</h2></a>
+    <dl>
+      <dt><a translate="no" id="-f" href="#-f">-f</a> <em>number</em></dt>
+      <dd><p>Specifies the first page to scan.</p></dd>
+      <dt><a translate="no" id="-l" href="#-l">-l</a> <em>number</em></dt>
+      <dd><p>Specifies the last page to scan.</p></dd>
+      <dt><a translate="no" id="-png" href="#-png">-png</a></dt>
+      <dd><p>Change the default output format to PNG.</p></dd>
+      <dt><a translate="no" id="-tiff" href="#-tiff">-tiff</a></dt>
+      <dd><p>Change the default output format to TIFF.</p></dd>
+      <dt><a translate="no" id="-j" href="#-j">-j</a></dt>
+      <dd>
+        <p>
+          Write images in JPEG format as JPEG files instead of the default
+          format. The JPEG file is identical to the JPEG data stored in the PDF.
+        </p>
+      </dd>
+      <dt><a translate="no" id="-jp2" href="#-jp2">-jp2</a></dt>
+      <dd>
+        <p>
+          Write images in JPEG2000 format as JP2 files instead of the default
+          format. The JP2 file is identical to the JPEG2000 data stored in the
+          PDF.
+        </p>
+      </dd>
+      <dt><a translate="no" id="-jbig2" href="#-jbig2">-jbig2</a></dt>
+      <dd>
+        <p>
+          Write images in JBIG2 format as JBIG2 files instead of the default
+          format. JBIG2 data in PDF is of the embedded type. The embedded type
+          of JBIG2 has an optional separate file containing global data. The
+          embedded data is written with the extension .jb2e and the global data
+          (if available) will be written to the same image number with the
+          extension .jb2g. The content of both these files is identical to the
+          JBIG2 data in the PDF.
+        </p>
+      </dd>
+      <dt><a translate="no" id="-ccitt" href="#-ccitt">-ccitt</a></dt>
+      <dd>
+        <p>
+          Write images in CCITT format as CCITT files instead of the default
+          format. The CCITT file is identical to the CCITT data stored in the
+          PDF. PDF files contain additional parameters specifying how to decode
+          the CCITT data. These parameters are translated to fax2tiff input
+          options and written to a .params file with the same image number. The
+          parameters are:
+        </p>
+        <dl>
+          <dt><a translate="no" id="-1" href="#-1">-1</a></dt>
+          <dd><p>1D Group 3 encoding</p></dd>
+          <dt><a translate="no" id="-2" href="#-2">-2</a></dt>
+          <dd><p>2D Group 3 encoding</p></dd>
+          <dt><a translate="no" id="-4" href="#-4">-4</a></dt>
+          <dd><p>Group 4 encoding</p></dd>
+          <dt><a translate="no" id="-A" href="#-A">-A</a></dt>
+          <dd><p>Beginning of line is aligned on a byte boundary</p></dd>
+          <dt><a translate="no" id="-P" href="#-P">-P</a></dt>
+          <dd><p>Beginning of line is not aligned on a byte boundary</p></dd>
+          <dt>
+            <strong><a translate="no" id="-X" href="#-X">-X</a> n</strong>
+          </dt>
+          <dd><p>The image width in pixels</p></dd>
+          <dt><a translate="no" id="-W" href="#-W">-W</a></dt>
+          <dd><p>Encoding uses 1 for black and 0 for white</p></dd>
+          <dt><a translate="no" id="-B" href="#-B">-B</a></dt>
+          <dd><p>Encoding uses 0 for black and 1 for white</p></dd>
+          <dt><a translate="no" id="-M" href="#-M">-M</a></dt>
+          <dd>
+            <p>
+              Input data fills from most significant bit to least significant
+              bit.
+            </p>
+          </dd>
+        </dl>
+      </dd>
+      <dt><a translate="no" id="-all" href="#-all">-all</a></dt>
+      <dd>
+        <p>
+          Write JPEG, JPEG2000, JBIG2, and CCITT images in their native format.
+          CMYK files are written as TIFF files. All other images are written as
+          PNG files. This is equivalent to specifying the options
+          <a translate="no" href="#-png">-png</a>
+          <a translate="no" href="#-tiff">-tiff</a>
+          <a translate="no" href="#-j">-j</a>
+          <a translate="no" href="#-jp2">-jp2</a>
+          <a translate="no" href="#-jbig2">-jbig2</a>
+          <a translate="no" href="#-ccitt">-ccitt</a>.
+        </p>
+      </dd>
+      <dt><a translate="no" id="-list" href="#-list">-list</a></dt>
+      <dd>
+        <p>
+          Instead of writing the images, list the images along with various
+          information for each image. Do not specify an <em>image-root</em> with
+          this option.
+        </p>
+        <p>The following information is listed for each image:</p>
+        <dl>
+          <dt><strong>page</strong></dt>
+          <dd><p>the page number containing the image</p></dd>
+          <dt><strong>num</strong></dt>
+          <dd><p>the image number</p></dd>
+          <dt><strong>type</strong></dt>
+          <dd>
+            <p>the image type:</p>
+            <p>
+              image - an opaque image<br />mask - a monochrome mask image<br />smask
+              - a soft-mask image<br />stencil - a monochrome mask image used
+              for painting a color or pattern
+            </p>
+          </dd>
+        </dl>
+        <p>
+          Note: Tranparency in images is represented in PDF using a separate
+          image for the image and the mask/smask. The mask/smask used as part of
+          a transparent image always immediately follows the image in the image
+          list.
+        </p>
+        <dl>
+          <dt><strong>width</strong></dt>
+          <dd><p>image width (in pixels)</p></dd>
+          <dt><strong>height</strong></dt>
+          <dd><p>image height (in pixels)</p></dd>
+        </dl>
+        <p>
+          Note: the image width/height is the size of the embedded image, not
+          the size the image will be rendered at.
+        </p>
+        <dl>
+          <dt><strong>color</strong></dt>
+          <dd>
+            <p>image color space:</p>
+            <p>
+              gray - Gray<br />rgb - RGB<br />cmyk - CMYK<br />lab - L*a*b<br />icc
+              - ICC Based<br />index - Indexed Color<br />sep - Separation<br />devn
+              - DeviceN
+            </p>
+          </dd>
+          <dt><strong>comp</strong></dt>
+          <dd><p>number of color components</p></dd>
+          <dt><strong>bpc</strong></dt>
+          <dd><p>bits per component</p></dd>
+          <dt><strong>enc</strong></dt>
+          <dd>
+            <p>encoding:</p>
+            <p>
+              image - raster image (may be Flate or LZW compressed but does not
+              use an image encoding)<br />jpeg - Joint Photographic Experts
+              Group<br />jp2 - JPEG2000<br />jbig2 - Joint Bi-Level Image
+              Experts Group<br />ccitt - CCITT Group 3 or Group 4 Fax
+            </p>
+          </dd>
+          <dt><strong>interp</strong></dt>
+          <dd>
+            <p>
+              "yes" if the interpolation is to be performed when scaling up the
+              image
+            </p>
+          </dd>
+          <dt><strong>object ID</strong></dt>
+          <dd><p>the image dictionary object ID (number and generation)</p></dd>
+          <dt><strong>x-ppi</strong></dt>
+          <dd>
+            <p>
+              The horizontal resolution of the image (in pixels per inch) when
+              rendered on the pdf page.
+            </p>
+          </dd>
+          <dt><strong>y-ppi</strong></dt>
+          <dd>
+            <p>
+              The vertical resolution of the image (in pixels per inch) when
+              rendered on the pdf page.
+            </p>
+          </dd>
+          <dt><strong>size</strong></dt>
+          <dd>
+            <p>
+              The size of the embedded image in the pdf file. The following
+              suffixes are used: 'B' bytes, 'K' kilobytes, 'M' megabytes, and
+              'G' gigabytes.
+            </p>
+          </dd>
+          <dt><strong>ratio</strong></dt>
+          <dd><p>The compression ratio of the embedded image.</p></dd>
+        </dl>
+      </dd>
+      <dt>
+        <a translate="no" id="-opw" href="#-opw">-opw</a> <em>password</em>
+      </dt>
+      <dd>
+        <p>
+          Specify the owner password for the PDF file. &nbsp;Providing this will
+          bypass all security restrictions.
+        </p>
+      </dd>
+      <dt>
+        <a translate="no" id="-upw" href="#-upw">-upw</a> <em>password</em>
+      </dt>
+      <dd><p>Specify the user password for the PDF file.</p></dd>
+      <dt><a translate="no" id="-p" href="#-p">-p</a></dt>
+      <dd><p>Include page numbers in output file names.</p></dd>
+      <dt><a translate="no" id="-q" href="#-q">-q</a></dt>
+      <dd><p>Don't print any messages or errors.</p></dd>
+      <dt><a translate="no" id="-v" href="#-v">-v</a></dt>
+      <dd><p>Print copyright and version information.</p></dd>
+      <dt><a translate="no" id="-h" href="#-h">-h</a></dt>
+      <dd>
+        <p>
+          Print usage information. (<strong>-help</strong> and
+          <strong>--help</strong> are equivalent.)
+        </p>
+      </dd>
+    </dl>
+  </section>
+  <section id="Exit_Codes">
+    <a href="#Exit_Codes"><h2>Exit Codes</h2></a>
+    <p>The Xpdf tools use the following exit codes:</p>
+    <dl>
+      <dt>0</dt>
+      <dd><p>No error.</p></dd>
+      <dt>1</dt>
+      <dd><p>Error opening a PDF file.</p></dd>
+      <dt>2</dt>
+      <dd><p>Error opening an output file.</p></dd>
+      <dt>3</dt>
+      <dd><p>Error related to PDF permissions.</p></dd>
+      <dt>99</dt>
+      <dd><p>Other error.</p></dd>
+    </dl>
+  </section>
+  <section id="Author">
+    <a href="#Author"><h2>Author</h2></a>
+    <p>
+      The pdfimages software and documentation are copyright 1998-2011 Glyph
+      &amp; Cog, LLC.
+    </p>
+  </section>
+  <section id="See_Also">
+    <a href="#See_Also"><h2>See Also</h2></a>
+    <p>
+      <a href="/1/pdfdetach">pdfdetach(1)</a>,
+      <a href="/1/pdffonts">pdffonts(1)</a>,
+      <a href="/1/pdfinfo">pdfinfo(1)</a>,
+      <a href="/1/pdftocairo">pdftocairo(1)</a>,
+      <a href="/1/pdftohtml">pdftohtml(1)</a>,
+      <a href="/1/pdftoppm">pdftoppm(1)</a>,
+      <a href="/1/pdftops">pdftops(1)</a>,
+      <a href="/1/pdftotext">pdftotext(1)</a>
+      <a href="/1/pdfseparate">pdfseparate(1)</a>,
+      <a href="/1/pdfsig">pdfsig(1)</a>, <a href="/1/pdfunite">pdfunite(1)</a>
+    </p>
+  </section>
+  <section id="Referenced_By">
+    <a href="#Referenced_By"><h2>Referenced By</h2></a>
+    <p>
+      <a href="/1/pdfattach">pdfattach(1)</a>,
+      <a href="/1/pdfdetach">pdfdetach(1)</a>,
+      <a href="/1/pdffonts">pdffonts(1)</a>,
+      <a href="/1/pdfinfo">pdfinfo(1)</a>,
+      <a href="/1/pdfseparate">pdfseparate(1)</a>,
+      <a href="/1/pdfsig">pdfsig(1)</a>,
+      <a href="/1/pdftocairo">pdftocairo(1)</a>,
+      <a href="/1/pdftohtml">pdftohtml(1)</a>,
+      <a href="/1/pdftopng">pdftopng(1)</a>,
+      <a href="/1/pdftoppm">pdftoppm(1)</a>,
+      <a href="/1/pdftops">pdftops(1)</a>,
+      <a href="/1/pdftosrc">pdftosrc(1)</a>,
+      <a href="/1/pdftotext">pdftotext(1)</a>,
+      <a href="/1/pdfunite">pdfunite(1)</a>, <a href="/1/xpdf">xpdf(1)</a>,
+      <a href="/5/xpdfrc">xpdfrc(5)</a>.
+    </p>
+    <div class="man-page-info">15 August 2011</div>
+  </section>
+</main>

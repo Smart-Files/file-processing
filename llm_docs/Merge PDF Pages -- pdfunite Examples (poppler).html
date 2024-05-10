@@ -1,0 +1,113 @@
+<main>
+  <header>
+    <h1>
+      <a translate="no" href="#">pdfunite<span> - Man Page</span></a>
+    </h1>
+    <p>Portable Document Format (PDF) page merger</p>
+  </header>
+  <section id="Examples_(TL;DR)">
+    <a href="#Examples_(TL;DR)"><h2>Examples (TL;DR)</h2></a>
+    <ul>
+      <li>
+        <span>Merge 2 PDFs into a single PDF:</span>
+        <code
+          >pdfunite <var>path/to/fileA.pdf</var> <var>path/to/fileB.pdf</var>
+          <var>path/to/merged_output.pdf</var></code
+        >
+      </li>
+      <li>
+        <span>Merge a directory of PDFs into a single PDF:</span>
+        <code
+          >pdfunite <var>path/to/directory/*.pdf</var>
+          <var>path/to/merged_output.pdf</var></code
+        >
+      </li>
+    </ul>
+    <p class="tldr-link"><a href="https://tldr.sh/">tldr.sh</a></p>
+  </section>
+  <section id="Synopsis">
+    <a href="#Synopsis"><h2>Synopsis</h2></a>
+    <p>
+      <code
+        ><strong>pdfunite</strong> [options]
+        <em>PDF-sourcefile1..PDF-sourcefilen PDF-destfile</em></code
+      >
+    </p>
+  </section>
+  <section id="Description">
+    <a href="#Description"><h2>Description</h2></a>
+    <p>
+      <strong>pdfunite</strong> merges several PDF (Portable Document Format)
+      files in order of their occurrence on command line to one PDF result file.
+    </p>
+    <p>
+      Neither of the PDF-sourcefile1 to PDF-sourcefilen should be encrypted.
+    </p>
+  </section>
+  <section id="Options">
+    <a href="#Options"><h2>Options</h2></a>
+    <dl>
+      <dt><a translate="no" id="-v" href="#-v">-v</a></dt>
+      <dd><p>Print copyright and version information.</p></dd>
+      <dt><a translate="no" id="-h" href="#-h">-h</a></dt>
+      <dd>
+        <p>
+          Print usage information. (<strong>-help</strong> and
+          <strong>--help</strong> are equivalent.)
+        </p>
+      </dd>
+    </dl>
+  </section>
+  <section id="Example">
+    <a href="#Example"><h2>Example</h2></a>
+    <p>pdfunite sample1.pdf sample2.pdf sample.pdf</p>
+    <p>
+      merges all pages from sample1.pdf and sample2.pdf (in that order) and
+      creates sample.pdf
+    </p>
+  </section>
+  <section id="Author">
+    <a href="#Author"><h2>Author</h2></a>
+    <p>
+      The pdfunite software and documentation are copyright 1996-2004 Glyph
+      &amp; Cog, LLC and copyright 2005-2011 The Poppler Developers -
+      <a href="http://poppler.freedesktop.org"
+        >http://poppler.freedesktop.org</a
+      >
+    </p>
+  </section>
+  <section id="See_Also">
+    <a href="#See_Also"><h2>See Also</h2></a>
+    <p>
+      <a href="/1/pdfdetach">pdfdetach(1)</a>,
+      <a href="/1/pdffonts">pdffonts(1)</a>,
+      <a href="/1/pdfimages">pdfimages(1)</a>,
+      <a href="/1/pdfinfo">pdfinfo(1)</a>,
+      <a href="/1/pdftocairo">pdftocairo(1)</a>,
+      <a href="/1/pdftohtml">pdftohtml(1)</a>,
+      <a href="/1/pdftoppm">pdftoppm(1)</a>,
+      <a href="/1/pdftops">pdftops(1)</a>,
+      <a href="/1/pdftotext">pdftotext(1)</a>
+      <a href="/1/pdfseparate">pdfseparate(1)</a>,
+      <a href="/1/pdfsig">pdfsig(1)</a>
+    </p>
+  </section>
+  <section id="Referenced_By">
+    <a href="#Referenced_By"><h2>Referenced By</h2></a>
+    <p>
+      <a href="/1/pdfattach">pdfattach(1)</a>,
+      <a href="/1/pdfdetach">pdfdetach(1)</a>,
+      <a href="/1/pdffonts">pdffonts(1)</a>,
+      <a href="/1/pdfimages">pdfimages(1)</a>,
+      <a href="/1/pdfinfo">pdfinfo(1)</a>,
+      <a href="/1/pdfseparate">pdfseparate(1)</a>,
+      <a href="/1/pdfsig">pdfsig(1)</a>,
+      <a href="/1/pdftocairo">pdftocairo(1)</a>,
+      <a href="/1/pdftohtml">pdftohtml(1)</a>,
+      <a href="/1/pdftoppm">pdftoppm(1)</a>,
+      <a href="/1/pdftops">pdftops(1)</a>,
+      <a href="/1/pdftotext">pdftotext(1)</a>.
+    </p>
+    <div class="man-page-info">15 September 2011</div>
+  </section>
+</main>

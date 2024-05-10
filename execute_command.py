@@ -1,33 +1,69 @@
-def execute_command(command: str) -> dict["stdout": str, "stderr": str]:
+import subprocess
+import shlex
+import os
+import re
+
+def get_current_directory_contents():
+    current_directory = os.getcwd()
+    contents = os.listdir(current_directory)
+    return contents
+
+def execute_command(command: str, working_dir="working_dir") -> dict["stdout": str, "stderr": str]:
     """Executes a command in the shell and returns the output.
 
     Args:
     - command: str - The command to execute in the shell.
+
+    Returns:
+    - output: str - The output of the command.
     """
 
-
-    print("start-finish:", command[0], command[len(command)-1])
     command = command.strip()
     if command[0] in ["'", "`", '"', '`'] and command[len(command)-1] == command[0]:
         command = command[1:len(command)-1]
 
-    args = shlex.split(command)
-    print("ARGS: ", args)
-    result = subprocess.run(args, stdout=subprocess.PIPE)
+    # Change the current working directory to the specified directory
+    cwd = os.getcwd()
+    os.chdir(working_dir)
+     
+    result = subprocess.run(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,  # Capture stderr as well
+        text=True,  # Decode the output to strings
+        shell=True
+    )
+
+    print("Command execution completed.")
+    print("Return Code:", result.returncode)
+    print("Standard Output:", result.stdout)
+    print("Standard Error:", result.stderr)
 
     print("RESULT: ", result)
 
     stdout = None
     if (result.stdout):
-        stdout = result.stdout.decode('utf-8')
+        stdout = result.stdout
 
     stderr = None
     if (result.stderr):
-        stderr = result.stderr.decode('utf-8')
-    
-    output = {"stdout": stdout, "stderr": stderr}
+        stderr = result.stderr
+
+    output = f"""Command: {command}
+
+    STDOUT: 
+    {stdout}
+
+    STDERR:
+    {stderr}
+
+    Return Code: {result.returncode}
+
+    Current Directory Contents:
+    {get_current_directory_contents()}
+    """
+
+
+    os.chdir(cwd)
     print(output)
     return output
-
-
-print(execute_command("ls -l"))

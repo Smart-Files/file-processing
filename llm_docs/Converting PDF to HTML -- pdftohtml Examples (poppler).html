@@ -1,0 +1,226 @@
+<main>
+  <header>
+    <h1>
+      <a translate="no" href="#">pdftohtml<span> - Man Page</span></a>
+    </h1>
+    <p>program to convert PDF files into HTML, XML and PNG images</p>
+  </header>
+  <section id="Examples_(TL;DR)">
+    <a href="#Examples_(TL;DR)"><h2>Examples (TL;DR)</h2></a>
+    <ul>
+      <li>
+        <span>Convert a PDF file to an HTML file:</span>
+        <code
+          >pdftohtml <var>path/to/file.pdf</var>
+          <var>path/to/output_file.html</var></code
+        >
+      </li>
+      <li>
+        <span>Ignore images in the PDF file:</span>
+        <code
+          >pdftohtml <a translate="no" href="#-i">-i</a>
+          <var>path/to/file.pdf</var> <var>path/to/output_file.html</var></code
+        >
+      </li>
+      <li>
+        <span>Generate a single HTML file that includes all PDF pages:</span>
+        <code
+          >pdftohtml <a translate="no" href="#-s">-s</a>
+          <var>path/to/file.pdf</var> <var>path/to/output_file.html</var></code
+        >
+      </li>
+      <li>
+        <span>Convert a PDF file to an XML file:</span>
+        <code
+          >pdftohtml <a translate="no" href="#-xml">-xml</a>
+          <var>path/to/file.pdf</var> <var>path/to/output_file.xml</var></code
+        >
+      </li>
+    </ul>
+    <p class="tldr-link"><a href="https://tldr.sh/">tldr.sh</a></p>
+  </section>
+  <section id="Synopsis">
+    <a href="#Synopsis"><h2>Synopsis</h2></a>
+    <p>
+      <code
+        ><strong>pdftohtml</strong>
+        <em
+          >[options] &lt;PDF-file&gt; [&lt;HTML-file&gt; &lt;XML-file&gt;]</em
+        ></code
+      >
+    </p>
+  </section>
+  <section id="Description">
+    <a href="#Description"><h2>Description</h2></a>
+    <p>
+      This manual page documents briefly the <strong>pdftohtml</strong> command.
+      This manual page was written for the Debian GNU/Linux distribution because
+      the original program does not have a manual page.
+    </p>
+    <p>
+      <strong>pdftohtml</strong> is a program that converts PDF documents into
+      HTML. It generates its output in the current working directory. &nbsp;If
+      <em>PDF-file</em> is ´-', it reads the PDF file from stdin.
+    </p>
+  </section>
+  <section id="Options">
+    <a href="#Options"><h2>Options</h2></a>
+    <p>A summary of options are included below.</p>
+    <dl>
+      <dt>
+        <a translate="no" id="-h" href="#-h">-h</a>, &thinsp;<a
+          translate="no"
+          id="-help"
+          href="#-help"
+          >-help</a
+        >
+      </dt>
+      <dd><p>Show summary of options.</p></dd>
+      <dt>
+        <strong><a translate="no" id="-f" href="#-f">-f</a> &lt;int&gt;</strong>
+      </dt>
+      <dd><p>first page to print</p></dd>
+      <dt>
+        <strong><a translate="no" id="-l" href="#-l">-l</a> &lt;int&gt;</strong>
+      </dt>
+      <dd><p>last page to print</p></dd>
+      <dt><a translate="no" id="-q" href="#-q">-q</a></dt>
+      <dd><p>do not print any messages or errors</p></dd>
+      <dt><a translate="no" id="-v" href="#-v">-v</a></dt>
+      <dd><p>print copyright and version info</p></dd>
+      <dt><a translate="no" id="-p" href="#-p">-p</a></dt>
+      <dd><p>exchange .pdf links with .html</p></dd>
+      <dt><a translate="no" id="-c" href="#-c">-c</a></dt>
+      <dd><p>generate complex output</p></dd>
+      <dt><a translate="no" id="-s" href="#-s">-s</a></dt>
+      <dd><p>generate single HTML that includes all pages</p></dd>
+      <dt><a translate="no" id="-dataurls" href="#-dataurls">-dataurls</a></dt>
+      <dd>
+        <p>
+          use data URLs instead of external images in HTML. No available in all
+          platforms
+        </p>
+      </dd>
+      <dt><a translate="no" id="-i" href="#-i">-i</a></dt>
+      <dd><p>ignore images</p></dd>
+      <dt><a translate="no" id="-noframes" href="#-noframes">-noframes</a></dt>
+      <dd><p>generate no frames. Not supported in complex output mode.</p></dd>
+      <dt><a translate="no" id="-stdout" href="#-stdout">-stdout</a></dt>
+      <dd><p>use standard output</p></dd>
+      <dt>
+        <strong
+          ><a translate="no" id="-zoom" href="#-zoom">-zoom</a>
+          &lt;fp&gt;</strong
+        >
+      </dt>
+      <dd><p>zoom the PDF document (default 1.5) (1 means 72 DPI)</p></dd>
+      <dt><a translate="no" id="-xml" href="#-xml">-xml</a></dt>
+      <dd><p>output for XML post-processing</p></dd>
+      <dt>
+        <a translate="no" id="-noroundcoord" href="#-noroundcoord"
+          >-noroundcoord</a
+        >
+      </dt>
+      <dd><p>do not round coordinates (with XML output only)</p></dd>
+      <dt>
+        <strong
+          ><a translate="no" id="-enc" href="#-enc">-enc</a>
+          &lt;string&gt;</strong
+        >
+      </dt>
+      <dd><p>output text encoding name</p></dd>
+      <dt>
+        <strong
+          ><a translate="no" id="-opw" href="#-opw">-opw</a>
+          &lt;string&gt;</strong
+        >
+      </dt>
+      <dd><p>owner password (for encrypted files)</p></dd>
+      <dt>
+        <strong
+          ><a translate="no" id="-upw" href="#-upw">-upw</a>
+          &lt;string&gt;</strong
+        >
+      </dt>
+      <dd><p>user password (for encrypted files)</p></dd>
+      <dt><a translate="no" id="-hidden" href="#-hidden">-hidden</a></dt>
+      <dd><p>force hidden text extraction</p></dd>
+      <dt><a translate="no" id="-fmt" href="#-fmt">-fmt</a></dt>
+      <dd>
+        <p>
+          image file format for Splash output (png or jpg). If complex is
+          selected, but <a translate="no" href="#-fmt">-fmt</a> is not
+          specified, <a translate="no" href="#-fmt">-fmt</a> png will be assumed
+        </p>
+      </dd>
+      <dt><a translate="no" id="-nomerge" href="#-nomerge">-nomerge</a></dt>
+      <dd><p>do not merge paragraphs</p></dd>
+      <dt><a translate="no" id="-nodrm" href="#-nodrm">-nodrm</a></dt>
+      <dd><p>override document DRM settings</p></dd>
+      <dt>
+        <strong
+          ><a translate="no" id="-wbt" href="#-wbt">-wbt</a> &lt;fp&gt;</strong
+        >
+      </dt>
+      <dd>
+        <p>
+          adjust the word break threshold percent. Default is 10. Word break
+          occurs when distance between two adjacent characters is greater than
+          this percent of character height.
+        </p>
+      </dd>
+      <dt>
+        <a translate="no" id="-fontfullname" href="#-fontfullname"
+          >-fontfullname</a
+        >
+      </dt>
+      <dd><p>outputs the font name without any substitutions.</p></dd>
+    </dl>
+  </section>
+  <section id="Author">
+    <a href="#Author"><h2>Author</h2></a>
+    <p>
+      Pdftohtml was developed by Gueorgui Ovtcharov and Rainer Dorsch. It is
+      based and benefits a lot from Derek Noonburg's xpdf package.
+    </p>
+    <p>
+      This manual page was written by Søren Boll Overgaard
+      &lt;boll@debian.org&gt;, for the Debian GNU/Linux system (but may be used
+      by others).
+    </p>
+  </section>
+  <section id="See_Also">
+    <a href="#See_Also"><h2>See Also</h2></a>
+    <p>
+      <a href="/1/pdfdetach">pdfdetach(1)</a>,
+      <a href="/1/pdffonts">pdffonts(1)</a>,
+      <a href="/1/pdfimages">pdfimages(1)</a>,
+      <a href="/1/pdfinfo">pdfinfo(1)</a>,
+      <a href="/1/pdftocairo">pdftocairo(1)</a>,
+      <a href="/1/pdftoppm">pdftoppm(1)</a>,
+      <a href="/1/pdftops">pdftops(1)</a>,
+      <a href="/1/pdftotext">pdftotext(1)</a>
+      <a href="/1/pdfseparate">pdfseparate(1)</a>,
+      <a href="/1/pdfsig">pdfsig(1)</a>, <a href="/1/pdfunite">pdfunite(1)</a>
+    </p>
+  </section>
+  <section id="Referenced_By">
+    <a href="#Referenced_By"><h2>Referenced By</h2></a>
+    <p>
+      <a href="/1/pdfattach">pdfattach(1)</a>,
+      <a href="/1/pdfdetach">pdfdetach(1)</a>,
+      <a href="/1/pdffonts">pdffonts(1)</a>,
+      <a href="/1/pdfimages">pdfimages(1)</a>,
+      <a href="/1/pdfinfo">pdfinfo(1)</a>,
+      <a href="/1/pdfseparate">pdfseparate(1)</a>,
+      <a href="/1/pdfsig">pdfsig(1)</a>,
+      <a href="/1/pdftocairo">pdftocairo(1)</a>,
+      <a href="/1/pdftopng">pdftopng(1)</a>,
+      <a href="/1/pdftoppm">pdftoppm(1)</a>,
+      <a href="/1/pdftops">pdftops(1)</a>,
+      <a href="/1/pdftotext">pdftotext(1)</a>,
+      <a href="/1/pdfunite">pdfunite(1)</a>, <a href="/1/xpdf">xpdf(1)</a>,
+      <a href="/5/xpdfrc">xpdfrc(5)</a>.
+    </p>
+  </section>
+</main>
