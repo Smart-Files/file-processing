@@ -61,7 +61,9 @@ MODEL_QWEN = "qwen/qwen-110b-chat"
 
 API_BASE = "https://api.groq.com/openai/v1"
 # API_BASE = "https://openrouter.ai/api/v1"
-# 
+
+
+
 # Initliaze models
 llm_llama3 = ChatOpenAI(openai_api_key=OPENROUTER_API_KEY, openai_api_base=API_BASE, model_name=MODEL_LLAMA3)
 # llm_llama3_8b = ChatOpenAI(openai_api_key=OPENROUTER_API_KEY, openai_api_base=API_BASE, model_name=MODEL_LLAMA3_8B)
@@ -135,7 +137,7 @@ async def init_tools_agent(llm, input, output_file):
     # print(output)
     
 if __name__ == "__main__":
-    input = "convert this latex file (math.tex) into a pdf ouptut"
+    input = ""
     asyncio.run(init_tools_agent(llm_llama3, input, "mathoutput.pdf"))
     # init_tools_agent(llm_llama3_8b, input, "llama8b.pdf")
     # init_tools_agent(llm_codellama, input, "codellama.png")
