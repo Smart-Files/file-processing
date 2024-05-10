@@ -32,18 +32,13 @@ from langsmith import Client
 
 from execute_command import execute_command
 
-from tool_doc_retrieval import create_file_retrieval_tool
+from agent_tools.tool_doc_retrieval import create_file_retrieval_tool
 
 
 import os
 from dotenv import load_dotenv
+import asyncio
 from langchain_core.callbacks import BaseCallbackHandler, BaseCallbackManager
-
-
-# chroma_client = Chroma.PersistentClient()
-
-set_verbose(True)
-set_debug(True)
 
 load_dotenv()
 PERSIST_DIR = 'db'
@@ -116,7 +111,7 @@ def load_documents_db(directory: str):
 
     
 
-def init_tools_agent(llm, input, output_file):
+async def init_tools_agent(llm, input, output_file):
     prompt = hub.pull("hwchase17/react")
 
     file_tool = create_file_retrieval_tool()
@@ -134,16 +129,14 @@ def init_tools_agent(llm, input, output_file):
     agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, max_execution_time=25)
 
 
-    output = agent_executor.invoke({
-        "input": f'{input}\nThe output file should be: {output_file}',
-    })
+    async for s in agent_executor.astream_log({"input": f'{input}\nThe output file should be: {output_file}'}):
+        print(s, end="e")
 
-    print(output)
+    # print(output)
     
 if __name__ == "__main__":
     input = "convert this latex file (math.tex) into a pdf ouptut"
-
-    init_tools_agent(llm_llama3, input, "mathoutput.pdf")
+    asyncio.run(init_tools_agent(llm_llama3, input, "mathoutput.pdf"))
     # init_tools_agent(llm_llama3_8b, input, "llama8b.pdf")
     # init_tools_agent(llm_codellama, input, "codellama.png")
     # init_tools_agent(llm_mixtral22, input, "mixtral.png")
