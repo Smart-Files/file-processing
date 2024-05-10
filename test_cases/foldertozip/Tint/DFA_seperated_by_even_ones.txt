@@ -1,0 +1,19 @@
+# DFA that accepts binary strings where any two successive zeros
+# are separated by an even number of ones.
+
+start: START
+
+accept-states: [START, EVEN_1s_AFTER_0]
+
+transitions:
+- [START, 0, EVEN_1s_AFTER_0]
+- [START, 1, START]
+
+- [EVEN_1s_AFTER_0, 1, ODD_1s_AFTER_0]
+- [ODD_1s_AFTER_0, 1, EVEN_1s_AFTER_0]
+
+- [EVEN_1s_AFTER_0, 0, REJECT]
+- [ODD_1s_AFTER_0, 0, REJECT]
+- [REJECT, 0, REJECT]
+- [REJECT, 1, REJECT]
+
