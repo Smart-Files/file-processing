@@ -176,10 +176,10 @@ def create_code_template():
 
 
 # give the outputted code into a template and have the template append to a requirements.txt and install requirements.txt
-def install_requirements(code, llm=llm_palm2):
+def install_requirements(code, llm=llm_mixtral22):
     template_requirements = ChatPromptTemplate.from_messages(
-    [("system", "You are a helpful coding assistant"),
-     ("user", "Step one: Create a list of every library that is used in the below program as well as its version. Step two: Append sh commands and use pip to install all imported, or used libraries in the code. (Wrap in ```sh```)\n\n\n$ # python library imports\n$\n\n\n{code}")])
+    [("system", "You are a helpful python programming assistant"),
+     ("user", "You must first identify each third party python library that is used in the below program as well with version if specified. Step two, append sh commands and use pip to install libraries in the code. (Wrap in ```sh```)\n\n\n$ # python library imports\n$\n\n\n{code}")])
 
     requirements_chain = template_requirements | llm | output_parser
     
@@ -241,7 +241,7 @@ def create_debug_agent():
     )
 
     # Define the agent
-    agent = create_openapi_agent(llm_palm2, tools, debug_prompt_template)
+    agent = create_openapi_agent(llm_mixtral22, tools, debug_prompt_template)
 
     # Create an agent executor by passing in the agent and tools
     agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
