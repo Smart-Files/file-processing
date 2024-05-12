@@ -243,6 +243,7 @@ def debug_errors(code, llm=llm_palm2):
     """
     
     output = execute_code(code)
+    print("OUTPUT OF CODE:\n", output)
     # Iterate 5 times to try to get rid of bugs. If bugs cannot be removed after 5 iterations, time out
     if check_if_errors(output):
         for i in range(0,5):
@@ -261,6 +262,7 @@ def debug_errors(code, llm=llm_palm2):
 
                 # Execute the code and save the output
                 output = execute_code(new_code)
+                print("OUTPUT OF CODE:\n", output)
                 if not check_if_errors(output):
                     # No errors so we return
                     return
@@ -303,8 +305,8 @@ def gen_code(input, files, llm_prompt=llm_mixtral22, llm_code=llm_palm2):
 if __name__ == "__main__":
     #input = "change this into picture.dcm and save it in the same directory as the inputted file"
     
-    input = "change this into a .obj file"
-    file = "Cube_3d_printing_sample.stl"
+    input = "convert the contents of this file to a .tex or LaTeK file"
+    file = "images/test.txt"
 
     python_code = gen_code(input, file)
     install_requirements(python_code)
