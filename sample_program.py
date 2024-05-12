@@ -156,8 +156,8 @@ def create_prompt_template():
 def create_code_template():
     # Generate detailed prompt from simple user prompt
     template_code = ChatPromptTemplate.from_messages([
-        ("system", "You are a helpful coding assistant. Write code based on the instructions with redundancy for errors."),
-        ("user", """Please write a Python script that can complete the task based on the detailed instructions provided below.
+        ("system", "You are a helpful coding assistant. Write code based on the instructions with redundancy for errors. If possible, try to utilize only libraries included in the requirements file contents. Only use libraries not already included in the requirements if essential."),
+        ("user", """Please write a Python script that can complete the task based on the detailed instructions provided below. Ensure that the code runs on Python Version 3.11.7
     
     Performance Evaluation:
     1. Continuously review and analyze your actions to ensure you are performing to the best of your abilities.
@@ -169,46 +169,62 @@ def create_code_template():
          
     Instructions: {input}
     File: {file}
-    File Contents: {contents}""")])
+    File Contents: {contents}
+    Requirements File Contents: {requirements}
+         """)])
 
     return template_code
 
 
 def install_requirements(code, llm=llm_palm2):
     """
-    Create a Chat Template pip install imports given in code.
-
-    Process
-    - Generate an a prompt to find imports and gather the installs required for them
-    - Generate sh code to install the imports
+    Installs requirements.txt ONLY if requirements has been changed.
 
     Args:
     - input (str): The LLM-generated code.
-    
     """
-    # Define the prompt for invocation
+    file = open("requirements.txt", 'r')
+    contents = file.read()
+    print("CONTENTS OF REQUIREMENTS:\n", contents)
     template_requirements = ChatPromptTemplate.from_messages(
     [("system", "You are a helpful coding assistant"),
-     ("user", "Step one: Create a list of every library that is used in the below program as well as its version. Step two: Append sh commands and use pip to install all imported, or used libraries in the code. (Wrap in ```sh```)\n\n\n$ # python library imports\n$\n\n\n{code}.")])
+     ("user", """
+      Step one: Create a list of every library that is used in the below program as well as its version. 
+      Step two: Create a list of every library included in the contents of the requirements file: {requirements}
+      Step three: Manually check if there are any libraries imported in the code that aren't included in the contents of the requirements. 
+      Step four: Use sh commands and pip to install libraries not included in requirements but included in the code. (Only save libraries that weren't already included in requirements) 
+      (example: if the code requires Pillow and fpdf but Pillow is already in requirements but fpdf is not in requirements, output ```sh pip install fpdf```)
+      (Wrap in ```sh```)\n\n\n$ # python library imports\n$\n\n\n{code}.""")])
 
     requirements_chain = template_requirements | llm | output_parser
-    
-    code_output = requirements_chain.invoke({"code": code})
 
-    # Extract the output as sh commands
-    extracted_commands = re.search(r'```sh(?s:(.*?))```', code_output)
-    if extracted_commands:
-        python_code = extracted_commands.group(1)
-    else:
-        python_code = None
-    python_code = python_code.split("\n")
+    code_output = requirements_chain.invoke({"code": code, "requirements": contents})
 
-    # Remove any invalid commands such as comments or empty strings
-    python_code = [command for command in python_code if (('#' not in command) and ( command != ''))]
+    # Install any new libraries if there are new ilbraries
+    if "```sh" in code_output:
 
-    # Execute the sh commands
-    result = subprocess.run(python_code, stdout=subprocess.PIPE, shell=True, text=True, stderr=subprocess.PIPE)
+        extracted_commands = re.search(r'```sh(?s:(.*?))```', code_output)
 
+        if extracted_commands:
+            sh_code = extracted_commands.group(1)
+        else:
+            sh_code = None
+
+        sh_code = sh_code.split("\n")
+
+        # Remove any invalid commands such as comments or empty strings
+        sh_code = [command for command in sh_code if (('#' not in command) and ( command != ''))]
+
+        result = subprocess.run(sh_code, stdout=subprocess.PIPE, shell=True, text=True, stderr=subprocess.PIPE)
+
+        installs = [install.replace("pip install", "") for install in sh_code]
+
+        # Add new libraries to requirements.txt
+        file = open("requirements.txt", "w")
+
+        file.writelines(installs)
+
+        file.close()
 
 def check_if_errors(output):
     return 'error' in output.keys()
@@ -227,27 +243,29 @@ def debug_errors(code, llm=llm_palm2):
     """
     
     output = execute_code(code)
+    print("OUTPUT OF CODE:\n", output)
     # Iterate 5 times to try to get rid of bugs. If bugs cannot be removed after 5 iterations, time out
-    for i in range(0,5):
-            # Define the prompt for invocation
-            template_error = ChatPromptTemplate.from_messages([
-                ("system", "You are a helpful coding assistant. You have been given the following code and error outputs. Output a modified version of the code that doesn't contain any errors."),
-                ("user", "Code: {code}\n Error Output: {error}")
-            ])
+    if check_if_errors(output):
+        for i in range(0,5):
+                # Define the prompt for invocation
+                template_error = ChatPromptTemplate.from_messages([
+                    ("system", "You are a helpful coding assistant. You have been given the following code and error outputs. Output a modified version of the code that doesn't contain any errors."),
+                    ("user", "Code: {code}\n Error Output: {error}")
+                ])
 
-            debug_chain = template_error | llm | output_parser
+                debug_chain = template_error | llm | output_parser
 
-            code_output = debug_chain.invoke({'code': code, 'error': output.get('error')})
+                code_output = debug_chain.invoke({'code': code, 'error': output.get('error')})
 
-            # Gather the new code from the template
-            new_code = re.search(r'```python(?s:(.*?))```', code_output).group(1)
+                # Gather the new code from the template
+                new_code = re.search(r'```python(?s:(.*?))```', code_output).group(1)
 
-            # Execute the code and save the output
-            output = execute_code(new_code)
-
-            if not check_if_errors(output):
-                # No errors so we return
-                return
+                # Execute the code and save the output
+                output = execute_code(new_code)
+                print("OUTPUT OF CODE:\n", output)
+                if not check_if_errors(output):
+                    # No errors so we return
+                    return
     
 
 def gen_code(input, files, llm_prompt=llm_mixtral22, llm_code=llm_palm2):
@@ -263,6 +281,10 @@ def gen_code(input, files, llm_prompt=llm_mixtral22, llm_code=llm_palm2):
     - files (str): The path to the file.
 
     """
+    requirements_file = open("requirements.txt", 'r')
+
+    contents = requirements_file.read()
+
     file_contents = get_file_contents(files)
 
     prompt_chain = create_prompt_template() | llm_prompt | output_parser
@@ -271,7 +293,7 @@ def gen_code(input, files, llm_prompt=llm_mixtral22, llm_code=llm_palm2):
     
     prompt_output = prompt_chain.invoke({"input": input, "file": file, "contents": file_contents})
     
-    code_output = code_chain.invoke({"input": prompt_output, "file": file, "contents": file_contents})
+    code_output = code_chain.invoke({"input": prompt_output, "file": file, "contents": file_contents, "requirements": contents})
     
     python_code = re.search(r'```python(?s:(.*?))```', code_output).group(1)
 
@@ -281,9 +303,10 @@ def gen_code(input, files, llm_prompt=llm_mixtral22, llm_code=llm_palm2):
 
 
 if __name__ == "__main__":
-    input = "make a copy of this image called platform.pdf"
-
-    file = "images/platform.jpg"
+    #input = "change this into picture.dcm and save it in the same directory as the inputted file"
+    
+    input = "convert the contents of this file to a .tex or LaTeK file"
+    file = "images/test.txt"
 
     python_code = gen_code(input, file)
     install_requirements(python_code)
