@@ -179,7 +179,9 @@ def create_code_template():
 def install_requirements(code, llm=llm_palm2):
     """
     Installs requirements.txt ONLY if requirements has been changed.
-    
+
+    Args:
+    - input (str): The LLM-generated code.
     """
     file = open("requirements.txt", 'r')
     contents = file.read()
@@ -194,23 +196,34 @@ def install_requirements(code, llm=llm_palm2):
       (example: if the code requires Pillow and fpdf but Pillow is already in requirements but fpdf is not in requirements, output ```sh pip install fpdf```)
       (Wrap in ```sh```)\n\n\n$ # python library imports\n$\n\n\n{code}.""")])
 
-
     requirements_chain = template_requirements | llm | output_parser
+
     code_output = requirements_chain.invoke({"code": code, "requirements": contents})
+
+    # Install any new libraries if there are new ilbraries
     if "```sh" in code_output:
+
         extracted_commands = re.search(r'```sh(?s:(.*?))```', code_output)
+
         if extracted_commands:
             sh_code = extracted_commands.group(1)
         else:
             sh_code = None
+
         sh_code = sh_code.split("\n")
 
         # Remove any invalid commands such as comments or empty strings
         sh_code = [command for command in sh_code if (('#' not in command) and ( command != ''))]
+
         result = subprocess.run(sh_code, stdout=subprocess.PIPE, shell=True, text=True, stderr=subprocess.PIPE)
+
         installs = [install.replace("pip install", "") for install in sh_code]
+
+        # Add new libraries to requirements.txt
         file = open("requirements.txt", "w")
+
         file.writelines(installs)
+
         file.close()
 
 def check_if_errors(output):
@@ -230,7 +243,6 @@ def debug_errors(code, llm=llm_palm2):
     """
     
     output = execute_code(code)
-    print("Output\n", output)
     # Iterate 5 times to try to get rid of bugs. If bugs cannot be removed after 5 iterations, time out
     if check_if_errors(output):
         for i in range(0,5):
@@ -249,7 +261,6 @@ def debug_errors(code, llm=llm_palm2):
 
                 # Execute the code and save the output
                 output = execute_code(new_code)
-                print("Output\n", output)
                 if not check_if_errors(output):
                     # No errors so we return
                     return
@@ -292,8 +303,8 @@ def gen_code(input, files, llm_prompt=llm_mixtral22, llm_code=llm_palm2):
 if __name__ == "__main__":
     #input = "change this into picture.dcm and save it in the same directory as the inputted file"
     
-    input = "change this into picture.jpg"
-    file = "images/picture.png"
+    input = "change this into a .obj file"
+    file = "Cube_3d_printing_sample.stl"
 
     python_code = gen_code(input, file)
     install_requirements(python_code)
