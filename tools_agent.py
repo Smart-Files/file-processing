@@ -1,11 +1,7 @@
-import sample_program
 from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate
-from langsmith.wrappers import wrap_openai
-from langsmith import traceable
-from langchain_core.tools import tool, Tool
+from langchain_core.tools import Tool
 from langchain import hub
-from langchain.agents import AgentExecutor, create_tool_calling_agent, AgentType, initialize_agent, load_tools, create_react_agent
+from langchain.agents import AgentExecutor, create_react_agent
 import subprocess
 from langchain.document_loaders.markdown import UnstructuredMarkdownLoader
 from langchain_community.document_loaders import BSHTMLLoader
@@ -13,32 +9,16 @@ from langchain.document_loaders.text import TextLoader
 from langchain_community.document_loaders.pdf import BasePDFLoader
 from langchain_chroma import Chroma
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.globals import set_debug, set_verbose
-from langchain_core.messages import AIMessage
-import shlex
-from langchain_core.runnables import (
-    Runnable,
-    RunnableLambda,
-    RunnableMap,
-    RunnablePassthrough,
-)
-
-
-from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings
-from langchain_text_splitters import CharacterTextSplitter
-
 from langsmith import Client
 
-from execute_command import execute_command
-
-from agent_tools.tool_doc_retrieval import create_file_retrieval_tool
+from fileprocessing import execute_command
+from fileprocessing import tool_doc_retrieval
 
 
 import os
 from dotenv import load_dotenv
 import asyncio
-from langchain_core.callbacks import BaseCallbackHandler, BaseCallbackManager
 
 load_dotenv()
 PERSIST_DIR = 'db'
@@ -113,13 +93,16 @@ def load_documents_db(directory: str):
 
     
 
-async def init_tools_agent(llm, input, output_file):
+async def init_tools_agent( uuid: str) -> AgentExecutor:
+    """
+    Generates tools and prompts and return them along with the preferred model
+    """
     prompt = hub.pull("hwchase17/react")
 
-    file_tool = create_file_retrieval_tool()
+    file_tool = tool_doc_retrieval.create_file_retrieval_tool()
 
 
-    execute_tool = Tool(name="Execute Shell Command",func=execute_command, description="Executes a shell command and returns the output. Do not install any software or packages, all packages are available using tools in documentation")
+    execute_tool = Tool(name="Execute Shell Command",func=execute_command.execute_command_factory(uuid), description="Executes a shell command and returns the output. Do not install any software or packages, all packages are available using tools in documentation")
 
 
     tools = [execute_tool, file_tool]
@@ -127,14 +110,13 @@ async def init_tools_agent(llm, input, output_file):
     # Construct the tool calling agent
     # agent = initialize_agent(tools, llm, agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION, callback_manager=callback_manager)
 
-    agent = create_react_agent(llm, tools, prompt)
-    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, max_execution_time=25)
 
-
-    async for s in agent_executor.astream_log({"input": f'{input}\nThe output file should be: {output_file}'}):
-        print(s, end="e")
+    # async for s in agent_executor.astream_log({"input": f'{input}\nThe output file should be: {output_file}'}):
+    #     print(s, end="e")
 
     # print(output)
+
+    return {"llm": llm_llama3, "tools": tools, "prompt": prompt}
     
 if __name__ == "__main__":
     input = ""

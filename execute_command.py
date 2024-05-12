@@ -2,13 +2,18 @@ import subprocess
 import shlex
 import os
 import re
+from pathlib import Path
+from functools import partial
 
 def get_current_directory_contents():
     current_directory = os.getcwd()
     contents = os.listdir(current_directory)
     return contents
 
-def execute_command(command: str, working_dir="working_dir") -> dict["stdout": str, "stderr": str]:
+def execute_command_factory(uuid: str):
+    return partial(execute_command, uuid)
+
+def execute_command(uuid: str, command: str) -> dict["stdout": str, "stderr": str]:
     """Executes a command in the shell and returns the output.
 
     Args:
@@ -23,8 +28,12 @@ def execute_command(command: str, working_dir="working_dir") -> dict["stdout": s
         command = command[1:len(command)-1]
 
     # Change the current working directory to the specified directory
+
     cwd = os.getcwd()
-    os.chdir(working_dir)
+    print(cwd)
+    Path(f"/app/working_dir/{uuid}").mkdir(parents=True, exist_ok=True)
+    os.chdir(f"/app/working_dir/{uuid}")
+
      
     result = subprocess.run(
         command,
