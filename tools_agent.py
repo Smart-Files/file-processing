@@ -55,10 +55,7 @@ client = Client()
 
 def load_documents_db(directory: str):
     documents = []
-
-
     embeddings = OpenAIEmbeddings(api_key=OPENAI_API_KEY)
-
     try:
         vectordb = Chroma(persist_directory=PERSIST_DIR, embedding_function=embeddings)
         if vectordb: 

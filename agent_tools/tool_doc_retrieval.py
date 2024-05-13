@@ -16,39 +16,39 @@ from dotenv import load_dotenv
 load_dotenv()
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
-def load_documents_db(directory: str, persist_dir: str = "db"):
-    documents = []
+# def load_documents_db(directory: str, persist_dir: str = "db"):
+#     documents = []
 
 
-    embeddings = OpenAIEmbeddings(api_key=OPENAI_API_KEY)
+#     embeddings = OpenAIEmbeddings(api_key=OPENAI_API_KEY)
 
-    try:
-        vectordb = Chroma(persist_directory=persist_dir, embedding_function=embeddings)
-        if vectordb: 
-            print("Found Database: Importing!")
-            return vectordb
-    except Exception as e:
-        print("Could not load DB from disk: ", e)
+#     try:
+#         vectordb = Chroma(persist_directory=persist_dir, embedding_function=embeddings)
+#         if vectordb: 
+#             print("Found Database: Importing!")
+#             return vectordb
+#     except Exception as e:
+#         print("Could not load DB from disk: ", e)
 
-    for filename in os.listdir(directory):
-        file_path = os.path.join(directory, filename)
-        loader = TextLoader(file_path)
-        if filename.endswith(".md"):
-            loader = UnstructuredMarkdownLoader(file_path)
-        elif filename.endswith(".pdf"):
-            loader = BasePDFLoader(file_path)
-        elif filename.endswith(".html"):    
-            loader = BSHTMLLoader(file_path)
+#     for filename in os.listdir(directory):
+#         file_path = os.path.join(directory, filename)
+#         loader = TextLoader(file_path)
+#         if filename.endswith(".md"):
+#             loader = UnstructuredMarkdownLoader(file_path)
+#         elif filename.endswith(".pdf"):
+#             loader = BasePDFLoader(file_path)
+#         elif filename.endswith(".html"):    
+#             loader = BSHTMLLoader(file_path)
 
-        document = loader.load()
-        documents.extend(document)
+#         document = loader.load()
+#         documents.extend(document)
 
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=200)
-    texts = text_splitter.split_documents(documents)
+#     text_splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=200)
+#     texts = text_splitter.split_documents(documents)
 
-    vectordb = Chroma.from_documents(documents=texts, embedding=embeddings, persist_directory=PERSIST_DIR)
+#     vectordb = Chroma.from_documents(documents=texts, embedding=embeddings, persist_directory=PERSIST_DIR)
 
-    return vectordb
+#     return vectordb
 
 
 def create_file_retrieval_tool():
