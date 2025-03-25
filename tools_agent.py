@@ -12,15 +12,15 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from langsmith import Client
 
-from fileprocessing import execute_command
-from fileprocessing import tool_doc_retrieval
+from cloud import execute_command
+from cloud import tool_doc_retrieval
 
 
 import os
 from dotenv import load_dotenv
 import asyncio
 
-load_dotenv()
+load_dotenv("/keys/.env")
 PERSIST_DIR = 'db'
 
 OPENROUTER_API_KEY = os.getenv('GROQ_API_KEY')
